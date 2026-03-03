@@ -1,0 +1,20 @@
+-- basic --
+zero
+one
+two
+three
+other: 4
+-- fallthrough --
+case1
+case2
+case3
+-- default --
+seven
+eight
+default: 9
+-- fallthrough to default --
+five-then-fall
+default-reached
+-- nested switch --
+outer=2
+inner=3

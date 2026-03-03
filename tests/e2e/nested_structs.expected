@@ -1,0 +1,21 @@
+-- point methods --
+dist2=25
+after set: x=5 y=12 dist2=169
+-- rect with pointers --
+tl=(2,3) br=(10,9)
+w=8 h=6 area=48
+-- linked list --
+n1=10
+n2=20
+n3=30
+n3.next=0
+-- deep nesting --
+id=7
+tl=(0,0)
+br=(640,480)
+size=640x480
+-- array of pointers --
+pt[0]=(0,0)
+pt[1]=(10,5)
+pt[2]=(20,10)
+pt[3]=(30,15)

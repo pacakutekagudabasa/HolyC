@@ -1,0 +1,19 @@
+-- forward skip --
+before
+after
+-- conditional big --
+big: 10
+finish
+-- conditional small --
+small: 3
+finish
+-- label v=1 --
+one
+end
+-- label v=2 --
+not one: 2
+end
+-- backward goto --
+iter=0
+iter=1
+loop_done

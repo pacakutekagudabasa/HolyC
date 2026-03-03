@@ -1,0 +1,6 @@
+// skip-interpret skip-jit skip-aot — formatter mode में test करो
+U0 Main() {
+I64 a=1+2;
+I64 b=a*3-1;
+"%d\n",b;
+}

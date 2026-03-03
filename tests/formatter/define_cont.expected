@@ -1,0 +1,5 @@
+#define LONG_MACRO(x) \
+  ((x) * (x) + 1)
+U0 Main() {
+  "%d\n", LONG_MACRO(3);
+}

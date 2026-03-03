@@ -1,0 +1,31 @@
+=== HolyC Demo (version 1) ===
+x=42  pi=3.141590  flag=1
+hex=0xff  bin=170
+multi-byte char 'AB' = 0x4241
+2^10 = 1024.000000
+3^3 = 27.000000
+1 ^^ 0 = 1
+1 ^^ 1 = 0
+6 & 3 + 1 = 3 (HolyC: (6&3)+1=3, C would give 6&4=4)
+age 25: Working age
+after ++=5: 11
+after --=3: 10
+ternary: 100
+Fib(0)=0  Fib(1)=1  Fib(2)=1  Fib(3)=2  Fib(4)=3  Fib(5)=5  Fib(6)=8  Fib(7)=13  
+Gcd(48, 18) = 6
+Sum(10) = 55
+Sum(10, 100) = 155
+10 20 30 40 50 
+*p = 99
+after *p=200: a = 200
+Sqrt(144) = 12.000000
+Abs(-42) = 42
+(0,1) (1,1) (2,1) 
+Wed
+First power of 2 >= 100: 128
+hex: 0xFF  char: 'A'  unsigned: 42
+padded: [        42]
+left:   [42        ]
+zero:   [0000000042]
+float:  3.142
+=== Done ===
