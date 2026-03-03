@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HolyC Documentation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-with-sidebar">
+
+<!-- Sidebar Table of Contents -->
+<nav class="sidebar">
+  <h3><a href="index.html" style="color: gold; font-size: 16px;">HolyC Compiler</a></h3>
+  <h3>Getting Started</h3>
+  <a href="#getting-started">Prerequisites &amp; Build</a>
+  <h3>CLI Reference</h3>
+  <a href="#cli">Flags &amp; Options</a>
+  <h3>Language Reference</h3>
+  <a href="#language">Overview</a>
+  <a href="#types" class="toc-indent">Types</a>
+  <a href="#operators" class="toc-indent">Operators</a>
+  <a href="#control-flow" class="toc-indent">Control Flow</a>
+  <a href="#functions" class="toc-indent">Functions</a>
+  <a href="#classes" class="toc-indent">Classes</a>
+  <a href="#string-output" class="toc-indent">String Output</a>
+  <a href="#inline-asm" class="toc-indent">Inline Assembly</a>
+  <a href="#compile-time" class="toc-indent">Compile-Time Exec</a>
+  <a href="#exceptions" class="toc-indent">Exceptions</a>
+  <a href="#other-features" class="toc-indent">Other Features</a>
+  <a href="#enums" class="toc-indent">Enums</a>
+  <a href="#unions" class="toc-indent">Unions</a>
+  <a href="#typedefs" class="toc-indent">Typedefs</a>
+  <a href="#function-pointers" class="toc-indent">Function Pointers</a>
+  <a href="#static-variables" class="toc-indent">Static Variables</a>
+  <h3>Preprocessor</h3>
+  <a href="#preprocessor">Directives &amp; Macros</a>
+  <h3>Runtime Builtins</h3>
+  <a href="#builtins">Overview</a>
+  <a href="#builtins-memory" class="toc-indent">Memory</a>
+  <a href="#builtins-string" class="toc-indent">Strings</a>
+  <a href="#builtins-output" class="toc-indent">Formatted Output</a>
+  <a href="#builtins-math" class="toc-indent">Math</a>
+  <a href="#builtins-bit" class="toc-indent">Bit Operations</a>
+  <a href="#builtins-char" class="toc-indent">Character</a>
+  <a href="#builtins-io" class="toc-indent">I/O</a>
+  <a href="#builtins-file" class="toc-indent">File I/O</a>
+  <a href="#builtins-time" class="toc-indent">Time / Random</a>
+  <a href="#builtins-system" class="toc-indent">System</a>
+  <h3>Standard Library</h3>
+  <a href="#stdlib">Modules</a>
+  <a href="#stdlib-defs" class="toc-indent">defs.HH</a>
+  <a href="#stdlib-vector" class="toc-indent">vector.HC</a>
+  <a href="#stdlib-hashmap" class="toc-indent">hashmap.HC</a>
+  <a href="#stdlib-queue" class="toc-indent">queue.HC</a>
+  <a href="#stdlib-stack" class="toc-indent">stack.HC</a>
+  <a href="#stdlib-tree" class="toc-indent">tree.HC</a>
+  <a href="#stdlib-list" class="toc-indent">list.HC</a>
+  <a href="#stdlib-set" class="toc-indent">set.HC</a>
+  <a href="#stdlib-sort" class="toc-indent">sort.HC</a>
+  <a href="#stdlib-regex" class="toc-indent">regex.HC</a>
+  <a href="#stdlib-math" class="toc-indent">math.HC</a>
+  <a href="#stdlib-strings" class="toc-indent">strings.HC</a>
+  <h3>Architecture</h3>
+  <a href="#architecture-detail">Compiler Stages</a>
+  <h3>Tools</h3>
+  <a href="#tools">Formatter, LSP, GDB, REPL</a>
+  <h3>Testing</h3>
+  <a href="#testing">Test Suite</a>
+  <h3>Security</h3>
+  <a href="#security">Hardening</a>
+  <h3>Links</h3>
+  <a href="https://github.com/pacakutekagudabasa/HolyC">GitHub</a>
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
+<div id="container">
+
+  <header>
+    <h1>HolyC Documentation</h1>
+    <p>Full reference for the HolyC compiler &mdash; a C++17 / LLVM 18 implementation of Terry Davis's HolyC language.</p>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- 1. Getting Started                                           -->
+  <!-- ============================================================ -->
+  <section id="getting-started">
+    <h2>1. Getting Started</h2>
+
+    <h3>Prerequisites</h3>
+    <ul>
+      <li><strong>CMake 3.20+</strong></li>
+      <li><strong>LLVM 14&ndash;18 development libraries</strong> (llvm-dev, libclang-dev or equivalent)</li>
+      <li><strong>C++17-compatible compiler</strong> &mdash; GCC 9+ or Clang 10+</li>
+    </ul>
+
+    <h3>Build from Source</h3>
+<pre><code>git clone https://github.com/pacakutekagudabasa/HolyC.git
+cd HolyC
+mkdir build &amp;&amp; cd build
+cmake ..
+make -j$(nproc)</code></pre>
+
+    <h3>Verify Installation</h3>
+<pre><code>./build/hcc --help</code></pre>
+    <p>You should see the list of available command-line flags printed to stdout.</p>
+
+    <h3>Run the Test Suite</h3>
+<pre><code>ASAN_OPTIONS=detect_leaks=0 bash tests/run_tests.sh</code></pre>
+    <p>352 tests across 126 test files (interpreter, JIT, AOT, and formatter modes).</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 2. CLI Reference                                             -->
+  <!-- ============================================================ -->
+  <section id="cli">
+    <h2>2. CLI Reference</h2>
+    <p>The <code>hcc</code> binary accepts a source file and an execution mode flag. If no mode flag is given the default behaviour applies.</p>
+
+    <table>
+      <thead>
+        <tr><th>Flag</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>--interpret</code></td><td>Run in interpreter mode (tree-walk execution)</td></tr>
+        <tr><td><code>--jit</code></td><td>Run in JIT mode (LLVM ORC LLJIT with SHA-256 bitcode caching)</td></tr>
+        <tr><td><code>-o &lt;file&gt;</code></td><td>AOT compile to a native binary at the given path</td></tr>
+        <tr><td><code>--format</code></td><td>Format the source file (TempleOS style)</td></tr>
+        <tr><td><code>--lsp</code></td><td>Start the Language Server Protocol server</td></tr>
+        <tr><td><code>--repl</code></td><td>Launch the interactive REPL</td></tr>
+        <tr><td><code>-g</code> / <code>--debug</code></td><td>Enable DWARF debug information in compiled output</td></tr>
+        <tr><td><code>-O0</code> to <code>-O3</code></td><td>Optimization level (AOT only); <code>-O0</code> disables optimization, <code>-O3</code> enables aggressive optimization</td></tr>
+        <tr><td><code>-I &lt;path&gt;</code></td><td>Add a directory to the include search path</td></tr>
+        <tr><td><code>-D &lt;name&gt;=&lt;val&gt;</code></td><td>Define a preprocessor macro</td></tr>
+        <tr><td><code>--target &lt;triple&gt;</code></td><td>Cross-compilation target (e.g. <code>aarch64-linux-gnu</code>, <code>x86_64-w64-mingw32</code>)</td></tr>
+        <tr><td><code>--print-tokens</code></td><td>Lex and print token stream</td></tr>
+        <tr><td><code>--print-ast</code></td><td>Parse and print AST</td></tr>
+        <tr><td><code>--preprocess</code></td><td>Run preprocessor only</td></tr>
+        <tr><td><code>--sema-only</code></td><td>Run semantic analysis only</td></tr>
+        <tr><td><code>--emit-llvm</code></td><td>Emit LLVM IR to stdout</td></tr>
+        <tr><td><code>--emit-bc</code></td><td>Emit LLVM bitcode</td></tr>
+        <tr><td><code>-c</code></td><td>Compile to object file only</td></tr>
+        <tr><td><code>-S</code></td><td>Emit assembly</td></tr>
+        <tr><td><code>-Os</code></td><td>Optimize for size</td></tr>
+        <tr><td><code>-shared</code></td><td>Build shared library</td></tr>
+        <tr><td><code>--no-cache</code></td><td>Disable JIT bitcode cache</td></tr>
+        <tr><td><code>--cache-dir &lt;dir&gt;</code></td><td>Set JIT cache directory</td></tr>
+        <tr><td><code>-Werror</code></td><td>Treat warnings as errors</td></tr>
+        <tr><td><code>-w</code></td><td>Suppress all warnings</td></tr>
+        <tr><td><code>-fmax-errors=N</code></td><td>Stop after N errors</td></tr>
+        <tr><td><code>--no-color</code></td><td>Disable colorized output</td></tr>
+        <tr><td><code>--help</code></td><td>Show usage help</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Usage Examples</h3>
+<pre><code># Interpret a program
+./hcc --interpret hello.HC
+
+# JIT compile and run
+./hcc --jit hello.HC
+
+# AOT compile to native binary
+./hcc -o hello hello.HC
+./hello
+
+# AOT with optimizations and debug info
+./hcc -O2 -g -o hello hello.HC
+
+# Format source in-place
+./hcc --format messy.HC
+
+# Cross-compile for aarch64
+./hcc --target aarch64-linux-gnu -o hello_arm hello.HC</code></pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 3. Language Reference                                        -->
+  <!-- ============================================================ -->
+  <section id="language">
+    <h2>3. Language Reference</h2>
+    <p>HolyC is the programming language created by Terry A. Davis for TempleOS. This compiler implements the full language with extensions for modern systems.</p>
+
+    <!-- 3.1 Types -->
+    <h3 id="types">3.1 Types</h3>
+    <p>HolyC provides a complete set of fixed-width integer types, floating-point types, and a boolean.</p>
+
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Size</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>I0</code></td><td>0</td><td>Signed void (0 bytes)</td></tr>
+        <tr><td><code>U0</code></td><td>0</td><td>Void type &mdash; used for functions that return nothing</td></tr>
+        <tr><td><code>U8</code></td><td>1 byte</td><td>Unsigned 8-bit integer; also used for characters and strings</td></tr>
+        <tr><td><code>U16</code></td><td>2 bytes</td><td>Unsigned 16-bit integer</td></tr>
+        <tr><td><code>U32</code></td><td>4 bytes</td><td>Unsigned 32-bit integer</td></tr>
+        <tr><td><code>U64</code></td><td>8 bytes</td><td>Unsigned 64-bit integer</td></tr>
+        <tr><td><code>I8</code></td><td>1 byte</td><td>Signed 8-bit integer</td></tr>
+        <tr><td><code>I16</code></td><td>2 bytes</td><td>Signed 16-bit integer</td></tr>
+        <tr><td><code>I32</code></td><td>4 bytes</td><td>Signed 32-bit integer</td></tr>
+        <tr><td><code>I64</code></td><td>8 bytes</td><td>Signed 64-bit integer &mdash; the default integer type</td></tr>
+        <tr><td><code>F32</code></td><td>4 bytes</td><td>32-bit IEEE 754 floating point</td></tr>
+        <tr><td><code>F64</code></td><td>8 bytes</td><td>64-bit IEEE 754 floating point &mdash; the default float type</td></tr>
+        <tr><td><code>Bool</code></td><td>1 byte</td><td>Boolean &mdash; <code>TRUE</code> or <code>FALSE</code></td></tr>
+      </tbody>
+    </table>
+
+    <h4>Intrinsic Union Types</h4>
+    <p>HolyC provides intrinsic union variants of all base types, used for type punning in TempleOS. These share the same size as their base type but allow reinterpreting the underlying bits.</p>
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>U8i</code>, <code>I8i</code></td><td>Intrinsic union variants of U8 / I8</td></tr>
+        <tr><td><code>U16i</code>, <code>I16i</code></td><td>Intrinsic union variants of U16 / I16</td></tr>
+        <tr><td><code>U32i</code>, <code>I32i</code></td><td>Intrinsic union variants of U32 / I32</td></tr>
+        <tr><td><code>U64i</code>, <code>I64i</code></td><td>Intrinsic union variants of U64 / I64</td></tr>
+        <tr><td><code>F64i</code></td><td>Intrinsic union variant of F64</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Pointer Types</h4>
+    <p>Pointers are declared with <code>*</code> after the base type. Multi-level pointers are supported.</p>
+<pre><code>I64 *p;       // pointer to I64
+I64 **pp;     // pointer to pointer to I64
+U8 *str;      // string (pointer to U8)</code></pre>
+
+    <h4>Array Types</h4>
+    <p>Arrays use bracket syntax with a compile-time size. Multi-dimensional arrays and initializer lists are supported.</p>
+<pre><code>I64 arr[10];                        // 10-element array
+I64 m[3][4];                        // 3x4 matrix
+I64 a[4] = {10, 20, 30, 40};       // initialized array
+U8 s[8] = "hello";                 // string-initialized array</code></pre>
+
+    <!-- 3.2 Operators -->
+    <h3 id="operators">3.2 Operators</h3>
+    <p>HolyC supports all standard C operators plus several TempleOS-specific extensions.</p>
+
+    <h4>Arithmetic Operators</h4>
+    <table>
+      <thead><tr><th>Operator</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>+</code></td><td>Addition</td></tr>
+        <tr><td><code>-</code></td><td>Subtraction</td></tr>
+        <tr><td><code>*</code></td><td>Multiplication</td></tr>
+        <tr><td><code>/</code></td><td>Division</td></tr>
+        <tr><td><code>%</code></td><td>Modulo</td></tr>
+        <tr><td><code>`</code></td><td>Power (HolyC extension &mdash; backtick)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Comparison Operators</h4>
+    <table>
+      <thead><tr><th>Operator</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>==</code></td><td>Equal</td></tr>
+        <tr><td><code>!=</code></td><td>Not equal</td></tr>
+        <tr><td><code>&lt;</code></td><td>Less than</td></tr>
+        <tr><td><code>&gt;</code></td><td>Greater than</td></tr>
+        <tr><td><code>&lt;=</code></td><td>Less than or equal</td></tr>
+        <tr><td><code>&gt;=</code></td><td>Greater than or equal</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Logical Operators</h4>
+    <table>
+      <thead><tr><th>Operator</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>&amp;&amp;</code></td><td>Logical AND</td></tr>
+        <tr><td><code>||</code></td><td>Logical OR</td></tr>
+        <tr><td><code>!</code></td><td>Logical NOT</td></tr>
+        <tr><td><code>^^</code></td><td>Logical XOR (HolyC extension)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Bitwise Operators</h4>
+    <table>
+      <thead><tr><th>Operator</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>&amp;</code></td><td>Bitwise AND</td></tr>
+        <tr><td><code>|</code></td><td>Bitwise OR</td></tr>
+        <tr><td><code>^</code></td><td>Bitwise XOR</td></tr>
+        <tr><td><code>~</code></td><td>Bitwise NOT</td></tr>
+        <tr><td><code>&lt;&lt;</code></td><td>Left shift</td></tr>
+        <tr><td><code>&gt;&gt;</code></td><td>Right shift</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Assignment Operators</h4>
+    <table>
+      <thead><tr><th>Operator</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>=</code></td><td>Assignment</td></tr>
+        <tr><td><code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code></td><td>Arithmetic compound assignment</td></tr>
+        <tr><td><code>&amp;=</code> <code>|=</code> <code>^=</code></td><td>Bitwise compound assignment</td></tr>
+        <tr><td><code>&lt;&lt;=</code> <code>&gt;&gt;=</code></td><td>Shift compound assignment</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Unary Operators</h4>
+    <table>
+      <thead><tr><th>Operator</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>++</code> <code>--</code></td><td>Prefix and postfix increment/decrement</td></tr>
+        <tr><td><code>&amp;</code></td><td>Address-of</td></tr>
+        <tr><td><code>*</code></td><td>Dereference</td></tr>
+        <tr><td><code>-</code></td><td>Unary negation</td></tr>
+        <tr><td><code>!</code></td><td>Logical NOT</td></tr>
+        <tr><td><code>~</code></td><td>Bitwise NOT</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Other Operators</h4>
+    <table>
+      <thead><tr><th>Operator</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>sizeof</code></td><td>Size of type or expression in bytes</td></tr>
+        <tr><td><code>expr(Type)</code></td><td>Postfix type cast (HolyC extension)</td></tr>
+        <tr><td><code>? :</code></td><td>Ternary conditional</td></tr>
+        <tr><td><code>-&gt;</code></td><td>Member access through pointer</td></tr>
+        <tr><td><code>.</code></td><td>Member access</td></tr>
+        <tr><td><code>::</code></td><td>Scope resolution / qualified method call</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3.3 Control Flow -->
+    <h3 id="control-flow">3.3 Control Flow</h3>
+
+    <h4>if / else</h4>
+<pre><code>if (x &gt; 0) {
+  "Positive\n";
+} else if (x == 0) {
+  "Zero\n";
+} else {
+  "Negative\n";
+}</code></pre>
+
+    <h4>for loop</h4>
+<pre><code>I64 i;
+for (i = 0; i &lt; 10; i++)
+  "i = %d\n", i;</code></pre>
+
+    <h4>while / do-while</h4>
+<pre><code>while (x &gt; 0) x--;
+
+do {
+  x++;
+} while (x &lt; 10);</code></pre>
+
+    <h4>switch / case</h4>
+    <p>HolyC supports the standard <code>switch</code>/<code>case</code> statement as well as the <code>case N..M:</code> range syntax for matching a contiguous range of values.</p>
+<pre><code>switch (ch) {
+  case 'a'..'z':
+    "lowercase\n";
+    break;
+  case 'A'..'Z':
+    "uppercase\n";
+    break;
+  case '0'..'9':
+    "digit\n";
+    break;
+  default:
+    "other\n";
+}</code></pre>
+
+    <h4>goto</h4>
+    <p>Labels and <code>goto</code> are fully supported, including backward jumps for loop-like patterns.</p>
+<pre><code>  goto done;
+  "skipped\n";
+done:
+  "reached\n";</code></pre>
+
+    <h4>break / continue</h4>
+    <p><code>break</code> exits the innermost loop or switch. <code>continue</code> jumps to the next iteration of the innermost loop. Both behave as in standard C.</p>
+
+    <!-- 3.4 Functions -->
+    <h3 id="functions">3.4 Functions</h3>
+
+    <h4>Basic Functions</h4>
+<pre><code>I64 Add(I64 a, I64 b) {
+  return a + b;
+}</code></pre>
+
+    <h4>Default Parameters</h4>
+    <p>Parameters may have default values. Callers can omit trailing arguments that have defaults.</p>
+<pre><code>U0 Greet(U8 *name = "World") {
+  "Hello %s\n", name;
+}</code></pre>
+
+    <h4>Variadic Functions (three-dot syntax)</h4>
+    <p>Functions can accept a variable number of arguments using the <code>...</code> syntax. Inside the function body, variadic arguments are accessed through the <code>argv</code> mechanism.</p>
+<pre><code>U0 PrintAll(I64 count, ...) {
+  I64 i;
+  for (i = 0; i &lt; count; i++)
+    "%d\n", argv[i];
+}</code></pre>
+    <p><strong>Note:</strong> <code>argv</code> is a special implicit array available inside variadic functions that contains the variable arguments. It is indexed starting at 0, where <code>argv[0]</code> is the first variadic argument (after any fixed parameters).</p>
+
+    <h4>Forward Declarations</h4>
+    <p>Functions can be forward-declared by providing the signature without a body, terminated by a semicolon.</p>
+<pre><code>I64 Fib(I64 n);</code></pre>
+
+    <!-- 3.5 Classes -->
+    <h3 id="classes">3.5 Classes</h3>
+
+    <h4>Basic Classes</h4>
+<pre><code>class Point {
+  I64 x, y;
+};</code></pre>
+
+    <h4>Inheritance</h4>
+    <p>Single inheritance is supported with a colon after the class name.</p>
+<pre><code>class Point3D : Point {
+  I64 z;
+};</code></pre>
+
+    <h4>Methods</h4>
+    <p>Methods are defined inside the class body. The <code>this</code> pointer is available implicitly.</p>
+<pre><code>class Vehicle {
+  I64 speed;
+  U0 SetSpeed(I64 s) {
+    this-&gt;speed = s;
+  };
+  I64 GetSpeed() {
+    return speed;
+  };
+};</code></pre>
+
+    <h4>Usage</h4>
+<pre><code>Vehicle v;
+v.SetSpeed(60);
+"Speed: %d\n", v.GetSpeed();</code></pre>
+
+    <h4>Forward Declarations</h4>
+    <p>Classes can be forward-declared for use in pointer types before the full definition is available.</p>
+<pre><code>class Node;</code></pre>
+
+    <h4>Keywords</h4>
+    <ul>
+      <li><code>lastclass</code> &mdash; refers to the most recently defined class type, useful for self-referential patterns.</li>
+      <li><code>public</code> &mdash; can precede class fields to indicate public accessibility.</li>
+    </ul>
+<pre><code>// lastclass refers to the most recently declared class type
+class Point { I64 x, y; };
+lastclass p;  // equivalent to: Point p;
+p.x = 10;</code></pre>
+
+    <!-- 3.6 String Output -->
+    <h3 id="string-output">3.6 String Output</h3>
+    <p>One of HolyC's most distinctive features is its string output syntax. A string literal used as a statement is automatically printed to stdout. Format specifiers and arguments follow with commas, just like <code>printf</code> &mdash; but without a function name.</p>
+
+<pre><code>// Simple string output (no function call needed)
+"Hello World\n";
+
+// With format specifiers
+"Value: %d\n", 42;
+"Name: %s, Age: %d\n", name, age;</code></pre>
+
+    <h4>Format Specifiers</h4>
+    <table>
+      <thead><tr><th>Specifier</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>%d</code></td><td>Signed decimal integer</td></tr>
+        <tr><td><code>%u</code></td><td>Unsigned decimal integer</td></tr>
+        <tr><td><code>%x</code></td><td>Hexadecimal (lowercase)</td></tr>
+        <tr><td><code>%X</code></td><td>Hexadecimal (uppercase)</td></tr>
+        <tr><td><code>%b</code></td><td>Binary</td></tr>
+        <tr><td><code>%B</code></td><td>Binary (uppercase variant, same as <code>%b</code>)</td></tr>
+        <tr><td><code>%f</code></td><td>Floating point</td></tr>
+        <tr><td><code>%e</code></td><td>Scientific notation (lowercase)</td></tr>
+        <tr><td><code>%E</code></td><td>Scientific notation (uppercase)</td></tr>
+        <tr><td><code>%g</code></td><td>Shortest representation (lowercase)</td></tr>
+        <tr><td><code>%n</code></td><td>Engineering notation (scaled with k/M/G/T/P suffixes)</td></tr>
+        <tr><td><code>%z</code></td><td>Null-separated string list index</td></tr>
+        <tr><td><code>%D</code></td><td>Date formatting (packed bit-field date)</td></tr>
+        <tr><td><code>%T</code></td><td>Time formatting (packed bit-field time)</td></tr>
+        <tr><td><code>%i</code></td><td>Signed decimal integer (alias for <code>%d</code>)</td></tr>
+        <tr><td><code>%s</code></td><td>String (U8 pointer)</td></tr>
+        <tr><td><code>%c</code></td><td>Single character</td></tr>
+        <tr><td><code>%p</code></td><td>Pointer address</td></tr>
+        <tr><td><code>%%</code></td><td>Literal percent sign</td></tr>
+        <tr><td><code>%h</code> modifier</td><td>HolyC repeat modifier (e.g., <code>%h5c</code> repeats character 5 times)</td></tr>
+        <tr><td><code>*</code></td><td>Dynamic width/precision from arguments</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Format Modifiers</h4>
+    <p>Width, precision, and flags work as in C:</p>
+<pre><code>"%10d", val;          // right-aligned, width 10
+"%-20s", name;        // left-aligned, width 20
+"%08x", hex_val;      // zero-padded hex
+"%.2f", pi;           // 2 decimal places
+"%+d", signed_val;    // show sign for positive numbers</code></pre>
+    <p>Available flags: <code>-</code> (left-align), <code>+</code> (force sign), <code>0</code> (zero-pad), <code> </code> (space before positive).</p>
+
+    <!-- 3.7 Inline Assembly -->
+    <h3 id="inline-asm">3.7 Inline Assembly</h3>
+    <p>HolyC supports inline assembly for direct hardware access. Both simple and GCC-style extended syntax are available.</p>
+
+<pre><code>// Basic inline asm
+asm("nop");
+
+// Extended with GCC constraints
+I64 result;
+asm("mov %1, %0" : "=r"(result) : "r"(42));</code></pre>
+
+    <!-- 3.8 Compile-Time Execution -->
+    <h3 id="compile-time">3.8 Compile-Time Execution</h3>
+    <p>The <code>#exe</code> directive executes HolyC code at compile time. Output generated via <code>Emit</code> is injected into the source stream as if it had been typed by the programmer.</p>
+
+<pre><code>#exe {
+  I64 i;
+  for (i = 0; i &lt; 5; i++)
+    Emit(MStrPrint("I64 var%d = %d;\n", i, i * 10));
+}
+// Generates at compile time:
+//   I64 var0 = 0;
+//   I64 var1 = 10;
+//   I64 var2 = 20;
+//   I64 var3 = 30;
+//   I64 var4 = 40;</code></pre>
+    <p><strong>Note:</strong> <code>Emit</code> takes a single string. Use <code>MStrPrint</code> to format the string before passing to <code>Emit</code>.</p>
+
+    <!-- 3.9 Exception Handling -->
+    <h3 id="exceptions">3.9 Exception Handling</h3>
+    <p>HolyC provides <code>try</code>/<code>catch</code>/<code>throw</code> for exception handling.</p>
+
+<pre><code>try {
+  I64 *p = NULL;
+  *p = 42;  // would crash
+} catch {
+  "Caught exception!\n";
+}
+
+throw;  // re-throw or raise an exception</code></pre>
+
+    <!-- 3.10 Other Features -->
+    <h3 id="other-features">3.10 Other Features</h3>
+
+    <ul>
+      <li><strong><code>reg</code> keyword</strong> &mdash; Register variable hint. Silently parsed and accepted for TempleOS compatibility but does not affect code generation.</li>
+      <li><strong><code>lock {}</code> blocks</strong> &mdash; Parsed as compound statements. Used in TempleOS for atomic sections.</li>
+      <li><strong><code>typeof(expr)</code></strong> &mdash; Type specifier that resolves to the type of the given expression at compile time.</li>
+      <li><strong>Multi-variable declarations</strong> &mdash; Multiple variables of the same type in one statement:
+<pre><code>I64 i, j, k;</code></pre>
+      </li>
+      <li><strong>Adjacent string literal concatenation</strong> &mdash; Adjacent string literals are automatically joined at compile time:
+<pre><code>"Hello " "World"   // equivalent to "Hello World"</code></pre>
+      </li>
+      <li><strong><code>extern "C"</code></strong> &mdash; Import C functions from system shared libraries for interoperability:
+<pre><code>extern "C" I64 puts(U8 *s);
+puts("Hello from libc");</code></pre>
+      </li>
+    </ul>
+
+    <!-- 3.11 Enums -->
+    <h4 id="enums">Enums</h4>
+<pre><code>// Basic enum (values start at 0)
+enum Color {
+  RED,
+  GREEN,
+  BLUE
+};
+
+// Enum with explicit values
+enum Flags {
+  FLAG_A = 1,
+  FLAG_B = 2,
+  FLAG_C = 4
+};
+
+Color c = RED;
+"Color: %d\n", c;  // 0</code></pre>
+
+    <!-- 3.12 Unions -->
+    <h4 id="unions">Unions</h4>
+<pre><code>union IntOrFloat {
+  I64 i;
+  F64 f;
+};
+
+union IntOrFloat u;
+u.i = 42;
+"As int: %d\n", u.i;</code></pre>
+
+    <!-- 3.13 Typedefs -->
+    <h4 id="typedefs">Typedefs</h4>
+<pre><code>typedef I64 Size;
+typedef U8 *String;
+
+Size n = 100;
+String s = "hello";</code></pre>
+
+    <!-- 3.14 Function Pointers -->
+    <h4 id="function-pointers">Function Pointers</h4>
+<pre><code>I64 Add(I64 a, I64 b) { return a + b; }
+I64 Mul(I64 a, I64 b) { return a * b; }
+
+// C-style function pointer syntax
+I64 (*op)(I64, I64) = &amp;Add;
+"Result: %d\n", op(3, 4);  // 7
+
+op = &amp;Mul;
+"Result: %d\n", op(3, 4);  // 12</code></pre>
+
+    <!-- 3.15 Static Variables -->
+    <h4 id="static-variables">Static Variables</h4>
+<pre><code>U0 Counter() {
+  static I64 count = 0;
+  count++;
+  "Count: %d\n", count;
+}
+
+Counter;  // Count: 1
+Counter;  // Count: 2
+Counter;  // Count: 3</code></pre>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 4. Preprocessor                                              -->
+  <!-- ============================================================ -->
+  <section id="preprocessor">
+    <h2>4. Preprocessor</h2>
+    <p>The HolyC preprocessor runs before parsing and handles macro expansion, conditional compilation, and file inclusion.</p>
+
+    <h3>Macros</h3>
+    <p>Object-like and function-like macros are defined with <code>#define</code> and removed with <code>#undef</code>.</p>
+<pre><code>#define MAX_SIZE 1024
+#define MIN(a, b) ((a) &lt; (b) ? (a) : (b))
+#undef MAX_SIZE</code></pre>
+
+    <h4>Variadic Macros</h4>
+    <p>Macros can accept a variable number of arguments via <code>...</code>, accessible as <code>__VA_ARGS__</code>.</p>
+<pre><code>#define LOG(fmt, ...) Print(fmt, __VA_ARGS__)</code></pre>
+
+    <h4>Token Paste and Stringification</h4>
+    <p>The <code>##</code> operator concatenates two tokens. The <code>#</code> operator converts a macro argument to a string literal.</p>
+<pre><code>#define CONCAT(a, b) a##b
+#define STRINGIFY(x) #x
+
+I64 CONCAT(my, Var) = 42;  // expands to: I64 myVar = 42;
+"Name: %s\n", STRINGIFY(hello);  // expands to: "Name: %s\n", "hello";</code></pre>
+
+    <h3>Conditional Compilation</h3>
+<pre><code>#ifdef DEBUG
+  "Debug mode\n";
+#endif
+
+#ifndef RELEASE
+  "Not release\n";
+#endif
+
+#if PLATFORM == 1
+  "Platform 1\n";
+#elif PLATFORM == 2
+  "Platform 2\n";
+#else
+  "Unknown\n";
+#endif</code></pre>
+
+    <h4>Mode-Specific Conditionals</h4>
+    <p>HolyC provides directives to conditionally compile code based on the execution mode.</p>
+<pre><code>#ifaot
+  // Only compiled in AOT mode
+#endif
+
+#ifjit
+  // Only compiled in JIT mode
+#endif</code></pre>
+
+    <h3>Other Directives</h3>
+    <table>
+      <thead><tr><th>Directive</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>#include "file.HC"</code></td><td>Include another source file. Search paths can be added with <code>-I</code>.</td></tr>
+        <tr><td><code>#assert expr</code></td><td>Compile-time assertion. Compilation fails if the expression evaluates to false.</td></tr>
+        <tr><td><code>#exe { ... }</code></td><td>Compile-time execution block (see <a href="#compile-time">Compile-Time Execution</a>).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Built-in Macros</h3>
+    <table>
+      <thead><tr><th>Macro</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>__LINE__</code></td><td>Current line number</td></tr>
+        <tr><td><code>__FILE__</code></td><td>Current file name</td></tr>
+        <tr><td><code>__DATE__</code></td><td>Compilation date as a string</td></tr>
+        <tr><td><code>__TIME__</code></td><td>Compilation time as a string</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 5. Runtime Builtins                                          -->
+  <!-- ============================================================ -->
+  <section id="builtins">
+    <h2>5. Runtime Builtins</h2>
+    <p>The HolyC runtime provides over 100 built-in functions available in all execution modes (interpreter, JIT, and AOT). These are organized by category below.</p>
+
+    <!-- Memory Management -->
+    <h3 id="builtins-memory">Memory Management</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>MAlloc</code></td><td><code>U8 *MAlloc(I64 size)</code></td><td>Allocate <code>size</code> bytes of memory. Returns a pointer to the allocated block.</td></tr>
+        <tr><td><code>CAlloc</code></td><td><code>U8 *CAlloc(I64 size)</code></td><td>Allocate <code>size</code> bytes of zeroed memory.</td></tr>
+        <tr><td><code>Free</code></td><td><code>U0 Free(U8 *ptr)</code></td><td>Free a previously allocated memory block.</td></tr>
+        <tr><td><code>ReAlloc</code></td><td><code>U8 *ReAlloc(U8 *ptr, I64 size)</code></td><td>Resize an existing allocation to <code>size</code> bytes.</td></tr>
+        <tr><td><code>MSize</code></td><td><code>I64 MSize(U8 *ptr)</code></td><td>Return the size of an allocated block.</td></tr>
+        <tr><td><code>MemCpy</code></td><td><code>U0 MemCpy(U8 *dst, U8 *src, I64 n)</code></td><td>Copy <code>n</code> bytes from <code>src</code> to <code>dst</code>.</td></tr>
+        <tr><td><code>MemSet</code></td><td><code>U0 MemSet(U8 *dst, I64 val, I64 n)</code></td><td>Fill <code>n</code> bytes of <code>dst</code> with byte value <code>val</code>.</td></tr>
+        <tr><td><code>MemMove</code></td><td><code>U0 MemMove(U8 *dst, U8 *src, I64 n)</code></td><td>Copy <code>n</code> bytes with overlap-safe semantics.</td></tr>
+        <tr><td><code>MAllocIdent</code></td><td><code>U8 *MAllocIdent(U8 *src)</code></td><td>Allocate memory and copy the given string into it.</td></tr>
+        <tr><td><code>MemCmp</code></td><td><code>I64 MemCmp(U8 *a, U8 *b, I64 n)</code></td><td>Compare <code>n</code> bytes of memory. Returns 0 if equal.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- String Operations -->
+    <h3 id="builtins-string">String Operations</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>StrLen</code></td><td><code>I64 StrLen(U8 *s)</code></td><td>Return the length of string <code>s</code> (not including the null terminator).</td></tr>
+        <tr><td><code>StrCmp</code></td><td><code>I64 StrCmp(U8 *a, U8 *b)</code></td><td>Compare two strings lexicographically. Returns 0 if equal, negative if <code>a &lt; b</code>, positive if <code>a &gt; b</code>.</td></tr>
+        <tr><td><code>StrNCmp</code></td><td><code>I64 StrNCmp(U8 *a, U8 *b, I64 n)</code></td><td>Compare at most <code>n</code> characters of two strings.</td></tr>
+        <tr><td><code>StrICmp</code></td><td><code>I64 StrICmp(U8 *a, U8 *b)</code></td><td>Case-insensitive string comparison.</td></tr>
+        <tr><td><code>StrCpy</code></td><td><code>U0 StrCpy(U8 *dst, U8 *src)</code></td><td>Copy string <code>src</code> to <code>dst</code>.</td></tr>
+        <tr><td><code>StrCpyN</code></td><td><code>U0 StrCpyN(U8 *dst, U8 *src, I64 n)</code></td><td>Copy at most <code>n</code> characters from <code>src</code> to <code>dst</code>.</td></tr>
+        <tr><td><code>StrCat</code></td><td><code>U0 StrCat(U8 *dst, U8 *src)</code></td><td>Append string <code>src</code> to the end of <code>dst</code>.</td></tr>
+        <tr><td><code>StrCatN</code></td><td><code>U0 StrCatN(U8 *dst, U8 *src, I64 n)</code></td><td>Append at most <code>n</code> characters of <code>src</code> to <code>dst</code>.</td></tr>
+        <tr><td><code>StrFind</code></td><td><code>I64 StrFind(U8 *needle, U8 *haystack)</code></td><td>Find the first occurrence of <code>needle</code> in <code>haystack</code>. Returns the index, or <code>-1</code> if not found. <em>Note: The builtin returns an index (-1 if not found). The stdlib strings.HC version returns a pointer.</em></td></tr>
+        <tr><td><code>StrNew</code></td><td><code>U8 *StrNew(U8 *s)</code></td><td>Allocate a new copy of string <code>s</code>.</td></tr>
+        <tr><td><code>StrDup</code></td><td><code>U8 *StrDup(U8 *s)</code></td><td>Duplicate string <code>s</code> (alias for <code>StrNew</code>).</td></tr>
+        <tr><td><code>StrUpr</code></td><td><code>U0 StrUpr(U8 *s)</code></td><td>Convert string to uppercase in place.</td></tr>
+        <tr><td><code>StrLwr</code></td><td><code>U0 StrLwr(U8 *s)</code></td><td>Convert string to lowercase in place.</td></tr>
+        <tr><td><code>StrOcc</code></td><td><code>I64 StrOcc(U8 *s, U8 ch)</code></td><td>Count the number of occurrences of character <code>ch</code> in string <code>s</code>.</td></tr>
+        <tr><td><code>StrFirst</code></td><td><code>U8 *StrFirst(U8 *s, U8 ch)</code></td><td>Return a pointer to the first occurrence of <code>ch</code> in <code>s</code>, or <code>NULL</code>.</td></tr>
+        <tr><td><code>StrLast</code></td><td><code>U8 *StrLast(U8 *s, U8 ch)</code></td><td>Return a pointer to the last occurrence of <code>ch</code> in <code>s</code>, or <code>NULL</code>.</td></tr>
+        <tr><td><code>StrNLen</code></td><td><code>I64 StrNLen(U8 *s, I64 max)</code></td><td>Return the length of string <code>s</code>, up to a maximum of <code>max</code> characters.</td></tr>
+        <tr><td><code>WildMatch</code></td><td><code>Bool WildMatch(U8 *pattern, U8 *s)</code></td><td>Match string <code>s</code> against a wildcard pattern (<code>*</code> and <code>?</code>).</td></tr>
+        <tr><td><code>StrMatch</code></td><td><code>Bool StrMatch(U8 *pattern, U8 *s)</code></td><td>Wildcard match (alias for <code>WildMatch</code>).</td></tr>
+        <tr><td><code>Str2I64</code></td><td><code>I64 Str2I64(U8 *s)</code></td><td>Parse a string to a 64-bit signed integer.</td></tr>
+        <tr><td><code>Str2F64</code></td><td><code>F64 Str2F64(U8 *s)</code></td><td>Parse a string to a 64-bit floating-point number.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Formatted Output -->
+    <h3 id="builtins-output">Formatted Output</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Print(U8 *fmt, ...)</code></td><td>Print formatted text to stdout.</td></tr>
+        <tr><td><code>MStrPrint(U8 *fmt, ...)</code></td><td>Format text into a newly allocated string and return it. The caller must <code>Free</code> the result.</td></tr>
+        <tr><td><code>CatPrint(U8 *dst, U8 *fmt, ...)</code></td><td>Append formatted text to the end of the string at <code>dst</code>.</td></tr>
+        <tr><td><code>SPrint(U8 *dst, U8 *fmt, ...)</code></td><td>Format text into the buffer at <code>dst</code>.</td></tr>
+        <tr><td><code>StrPrintf(U8 *fmt, ...)</code></td><td>Format text into a newly allocated string and return it.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Math -->
+    <h3 id="builtins-math">Math</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Abs(I64 x)</code></td><td>Absolute value of an integer.</td></tr>
+        <tr><td><code>Min(I64 a, I64 b)</code></td><td>Return the smaller of two integers.</td></tr>
+        <tr><td><code>Max(I64 a, I64 b)</code></td><td>Return the larger of two integers.</td></tr>
+        <tr><td><code>Clamp(I64 x, I64 lo, I64 hi)</code></td><td>Clamp <code>x</code> to the range <code>[lo, hi]</code>.</td></tr>
+        <tr><td><code>Sign(I64 x)</code></td><td>Return <code>-1</code>, <code>0</code>, or <code>1</code> depending on the sign of <code>x</code>.</td></tr>
+        <tr><td><code>Sqrt(F64 x)</code></td><td>Square root.</td></tr>
+        <tr><td><code>Sin(F64 x)</code> / <code>Cos(F64 x)</code> / <code>Tan(F64 x)</code></td><td>Trigonometric functions (radians).</td></tr>
+        <tr><td><code>ASin(F64 x)</code> / <code>ACos(F64 x)</code> / <code>ATan(F64 x)</code></td><td>Inverse trigonometric functions.</td></tr>
+        <tr><td><code>ATan2(F64 y, F64 x)</code></td><td>Two-argument arctangent.</td></tr>
+        <tr><td><code>Sinh(F64 x)</code> / <code>Cosh(F64 x)</code> / <code>Tanh(F64 x)</code></td><td>Hyperbolic functions.</td></tr>
+        <tr><td><code>Log(F64 x)</code> / <code>Log2(F64 x)</code> / <code>Log10(F64 x)</code></td><td>Natural, base-2, and base-10 logarithms.</td></tr>
+        <tr><td><code>Exp(F64 x)</code></td><td>Exponential function (e^x).</td></tr>
+        <tr><td><code>Pow(F64 base, F64 exp)</code></td><td>Raise <code>base</code> to the power <code>exp</code>.</td></tr>
+        <tr><td><code>Floor(F64 x)</code> / <code>Ceil(F64 x)</code></td><td>Round down / round up to the nearest integer.</td></tr>
+        <tr><td><code>Round(F64 x)</code></td><td>Round to the nearest integer.</td></tr>
+        <tr><td><code>Trunc(F64 x)</code></td><td>Truncate toward zero.</td></tr>
+        <tr><td><code>Cbrt(F64 x)</code></td><td>Cube root.</td></tr>
+        <tr><td><code>FMod(F64 x, F64 y)</code></td><td>Floating-point modulo.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Bit Operations -->
+    <h3 id="builtins-bit">Bit Operations</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Bt(I64 *addr, I64 bit)</code></td><td>Test bit at position <code>bit</code>. Returns <code>TRUE</code> if set.</td></tr>
+        <tr><td><code>Bts(I64 *addr, I64 bit)</code></td><td>Test and set bit. Returns the old value.</td></tr>
+        <tr><td><code>Btr(I64 *addr, I64 bit)</code></td><td>Test and reset (clear) bit. Returns the old value.</td></tr>
+        <tr><td><code>Btc(I64 *addr, I64 bit)</code></td><td>Test and complement (toggle) bit. Returns the old value.</td></tr>
+        <tr><td><code>Bsf(I64 val)</code></td><td>Bit scan forward &mdash; find the index of the lowest set bit.</td></tr>
+        <tr><td><code>Bsr(I64 val)</code></td><td>Bit scan reverse &mdash; find the index of the highest set bit.</td></tr>
+        <tr><td><code>BCnt(I64 val)</code></td><td>Population count &mdash; number of set bits.</td></tr>
+        <tr><td><code>BFieldExtU32(I64 val, I64 off, I64 len)</code></td><td>Extract a bit field of <code>len</code> bits starting at bit <code>off</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Character Classification -->
+    <h3 id="builtins-char">Character Classification</h3>
+    <p>All character classification functions accept a single <code>U8</code> argument and return a <code>Bool</code>.</p>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>IsAlpha(U8 ch)</code></td><td>Is alphabetic (a&ndash;z, A&ndash;Z).</td></tr>
+        <tr><td><code>IsDigit(U8 ch)</code></td><td>Is decimal digit (0&ndash;9).</td></tr>
+        <tr><td><code>IsAlphaNum(U8 ch)</code></td><td>Is alphanumeric.</td></tr>
+        <tr><td><code>IsUpper(U8 ch)</code></td><td>Is uppercase letter.</td></tr>
+        <tr><td><code>IsLower(U8 ch)</code></td><td>Is lowercase letter.</td></tr>
+        <tr><td><code>IsSpace(U8 ch)</code></td><td>Is whitespace character.</td></tr>
+        <tr><td><code>IsPunct(U8 ch)</code></td><td>Is punctuation character.</td></tr>
+        <tr><td><code>IsCtrl(U8 ch)</code></td><td>Is control character.</td></tr>
+        <tr><td><code>IsXDigit(U8 ch)</code></td><td>Is hexadecimal digit.</td></tr>
+        <tr><td><code>IsGraph(U8 ch)</code></td><td>Is graphical character (printable and not space).</td></tr>
+        <tr><td><code>IsPrint(U8 ch)</code></td><td>Is printable character.</td></tr>
+        <tr><td><code>ToUpper(U8 ch)</code></td><td>Convert character to uppercase. Returns the converted character.</td></tr>
+        <tr><td><code>ToLower(U8 ch)</code></td><td>Convert character to lowercase. Returns the converted character.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- I/O -->
+    <h3 id="builtins-io">I/O</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>GetChar()</code></td><td>Read a single character from stdin. Returns the character as an <code>I64</code>.</td></tr>
+        <tr><td><code>GetStr(U8 *buf, I64 max)</code></td><td>Read a line from stdin into <code>buf</code>, up to <code>max</code> characters.</td></tr>
+        <tr><td><code>PutChars(U8 *s)</code></td><td>Write string <code>s</code> to stdout.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- File I/O -->
+    <h3 id="builtins-file">File I/O</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>FileOpen(U8 *path, U8 *mode)</code></td><td>Open a file. <code>mode</code> follows C conventions (<code>"r"</code>, <code>"w"</code>, <code>"rb"</code>, etc.). Returns a handle.</td></tr>
+        <tr><td><code>FileClose(I64 handle)</code></td><td>Close an open file handle.</td></tr>
+        <tr><td><code>FileRead(I64 handle, U8 *buf, I64 size)</code></td><td>Read up to <code>size</code> bytes from a file into <code>buf</code>. Returns the number of bytes read.</td></tr>
+        <tr><td><code>FileWrite(I64 handle, U8 *buf, I64 size)</code></td><td>Write <code>size</code> bytes from <code>buf</code> to a file. Returns the number of bytes written.</td></tr>
+        <tr><td><code>FileSeek(I64 handle, I64 offset)</code></td><td>Seek to byte position <code>offset</code> from the beginning of the file.</td></tr>
+        <tr><td><code>FileExists(U8 *path)</code></td><td>Return <code>TRUE</code> if the file at <code>path</code> exists.</td></tr>
+        <tr><td><code>FileSize(U8 *path)</code></td><td>Return the size of the file in bytes.</td></tr>
+        <tr><td><code>FileReadAll(U8 *path)</code></td><td>Read the entire contents of a file into a newly allocated buffer. The caller must <code>Free</code> the result.</td></tr>
+        <tr><td><code>DirExists(U8 *path)</code></td><td>Return <code>TRUE</code> if the directory at <code>path</code> exists.</td></tr>
+        <tr><td><code>FileWriteAll(U8 *path, U8 *data, I64 size)</code></td><td>Write <code>size</code> bytes from <code>data</code> to the file at <code>path</code>.</td></tr>
+        <tr><td><code>FileDel(U8 *path)</code></td><td>Delete the file at <code>path</code>.</td></tr>
+        <tr><td><code>FileRename(U8 *old, U8 *new)</code></td><td>Rename a file from <code>old</code> to <code>new</code>.</td></tr>
+        <tr><td><code>DirMk(U8 *path)</code></td><td>Create a directory at <code>path</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Time / Random -->
+    <h3 id="builtins-time">Time and Random</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Now()</code></td><td>Return the current Unix timestamp as a <code>U64</code>.</td></tr>
+        <tr><td><code>GetTicks()</code></td><td>Return a high-resolution tick count for timing measurements.</td></tr>
+        <tr><td><code>Sleep(I64 ms)</code></td><td>Suspend execution for <code>ms</code> milliseconds.</td></tr>
+        <tr><td><code>RandU64()</code></td><td>Return a random unsigned 64-bit integer.</td></tr>
+        <tr><td><code>RandI64()</code></td><td>Return a random signed 64-bit integer.</td></tr>
+        <tr><td><code>SeedRand(I64 seed)</code></td><td>Seed the random number generator for reproducible sequences.</td></tr>
+        <tr><td><code>GetTickCount()</code></td><td>Return a high-resolution tick count (alias for <code>GetTicks</code>).</td></tr>
+      </tbody>
+    </table>
+
+    <!-- System -->
+    <h3 id="builtins-system">System</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Exit(I64 code)</code></td><td>Terminate the program with exit code <code>code</code>.</td></tr>
+        <tr><td><code>SysDbg()</code></td><td>Trigger a debug breakpoint (useful with GDB).</td></tr>
+        <tr><td><code>Abort()</code></td><td>Abort the program immediately.</td></tr>
+        <tr><td><code>ArgC()</code></td><td>Return the number of command-line arguments.</td></tr>
+        <tr><td><code>ArgV(I64 idx)</code></td><td>Return the command-line argument string at index <code>idx</code> as a <code>U8*</code>.</td></tr>
+        <tr><td><code>Emit(U8 *text)</code></td><td>Emit text to the compile-time buffer (used in <code>#exe</code> blocks).</td></tr>
+        <tr><td><code>ToI64(value)</code></td><td>Convert a value to <code>I64</code>.</td></tr>
+        <tr><td><code>ToF64(value)</code></td><td>Convert a value to <code>F64</code>.</td></tr>
+        <tr><td><code>AbsI64(I64 x)</code></td><td>Integer absolute value.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 6. Standard Library                                          -->
+  <!-- ============================================================ -->
+  <section id="stdlib">
+    <h2>6. Standard Library</h2>
+    <p>The HolyC standard library lives in the <code>stdlib/</code> directory. Include any module with <code>#include "module.HC"</code>. Each module provides data structures or utilities implemented in pure HolyC.</p>
+
+    <!-- defs.HH -->
+    <h3 id="stdlib-defs">defs.HH &mdash; Predefined Constants</h3>
+    <p>Included automatically by most stdlib modules. Provides fundamental constants.</p>
+    <table>
+      <thead><tr><th>Constant</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td><code>NULL</code></td><td>0 (null pointer)</td></tr>
+        <tr><td><code>TRUE</code></td><td>1</td></tr>
+        <tr><td><code>FALSE</code></td><td>0</td></tr>
+        <tr><td><code>I64_MIN</code></td><td>Minimum 64-bit signed integer</td></tr>
+        <tr><td><code>I64_MAX</code></td><td>Maximum 64-bit signed integer</td></tr>
+        <tr><td><code>U64_MAX</code></td><td>Maximum 64-bit unsigned integer</td></tr>
+        <tr><td><code>F64_MAX</code></td><td>Maximum 64-bit float</td></tr>
+        <tr><td><code>F64_MIN</code></td><td>Minimum positive 64-bit float</td></tr>
+      </tbody>
+    </table>
+
+    <!-- vector.HC -->
+    <h3 id="stdlib-vector">vector.HC &mdash; Dynamic Array</h3>
+    <p>A growable array of <code>I64</code> values backed by a contiguous buffer.</p>
+<pre><code>class CVec {
+  I64 *data, len, cap;
+};</code></pre>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>U0 VecInit(CVec *v)</code></td><td>Initialize a vector in place.</td></tr>
+        <tr><td><code>U0 VecPush(CVec *v, I64 val)</code></td><td>Append <code>val</code> to the end of the vector.</td></tr>
+        <tr><td><code>I64 VecPop(CVec *v)</code></td><td>Remove and return the last element.</td></tr>
+        <tr><td><code>I64 VecGet(CVec *v, I64 idx)</code></td><td>Return the element at index <code>idx</code>.</td></tr>
+        <tr><td><code>U0 VecSet(CVec *v, I64 idx, I64 val)</code></td><td>Set the element at index <code>idx</code> to <code>val</code>.</td></tr>
+        <tr><td><code>I64 VecLen(CVec *v)</code></td><td>Return the number of elements.</td></tr>
+        <tr><td><code>U0 VecFree(CVec *v)</code></td><td>Free the vector and its backing buffer.</td></tr>
+        <tr><td><code>U0 VecGrow(CVec *v)</code></td><td>Grow the backing buffer (doubles capacity internally).</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Example</h4>
+<pre><code>#include "vector.HC"
+
+CVec v;
+VecInit(&amp;v);
+VecPush(&amp;v, 10);
+VecPush(&amp;v, 20);
+"Length: %d\n", VecLen(&amp;v);   // 2
+VecFree(&amp;v);</code></pre>
+
+    <!-- hashmap.HC -->
+    <h3 id="stdlib-hashmap">hashmap.HC &mdash; Hash Map</h3>
+    <p>A string-keyed hash map storing <code>I64</code> values with open addressing and linear probing.</p>
+<pre><code>class CHashMap {
+  U8 **keys;
+  I64 *vals;
+  I64 *state;
+  I64 cap;
+  I64 cnt;
+  I64 dcnt;
+};</code></pre>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>U0 HashMapInit(CHashMap *m)</code></td><td>Initialize a hash map in place.</td></tr>
+        <tr><td><code>U0 HashMapSet(CHashMap *m, U8 *key, I64 val)</code></td><td>Insert or update a key-value pair.</td></tr>
+        <tr><td><code>Bool HashMapGet(CHashMap *m, U8 *key, I64 *out)</code></td><td>Retrieve the value for <code>key</code>. Returns <code>TRUE</code> if found, writing the value to <code>out</code>.</td></tr>
+        <tr><td><code>Bool HashMapDel(CHashMap *m, U8 *key)</code></td><td>Remove the entry for <code>key</code>. Returns <code>TRUE</code> if the key was found.</td></tr>
+        <tr><td><code>I64 HashMapCount(CHashMap *m)</code></td><td>Return the number of entries in the map.</td></tr>
+        <tr><td><code>U0 HashMapFree(CHashMap *m)</code></td><td>Free the map and all its entries.</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Example</h4>
+<pre><code>#include "hashmap.HC"
+
+CHashMap m;
+HashMapInit(&amp;m);
+HashMapSet(&amp;m, "age", 30);
+I64 val;
+if (HashMapGet(&amp;m, "age", &amp;val))
+  "age = %d\n", val;
+HashMapFree(&amp;m);</code></pre>
+
+    <!-- queue.HC -->
+    <h3 id="stdlib-queue">queue.HC &mdash; Queue</h3>
+    <p>A circular buffer FIFO queue of <code>I64</code> values.</p>
+<pre><code>class CQueue {
+  I64 *data, cap, head, tail, cnt;
+};</code></pre>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>U0 QueueInit(CQueue *q)</code></td><td>Initialize a queue in place.</td></tr>
+        <tr><td><code>U0 QueueEnqueue(CQueue *q, I64 val)</code></td><td>Add <code>val</code> to the back of the queue.</td></tr>
+        <tr><td><code>I64 QueueDequeue(CQueue *q)</code></td><td>Remove and return the front element.</td></tr>
+        <tr><td><code>I64 QueuePeek(CQueue *q)</code></td><td>Return the front element without removing it.</td></tr>
+        <tr><td><code>Bool QueueEmpty(CQueue *q)</code></td><td>Return <code>TRUE</code> if the queue is empty.</td></tr>
+        <tr><td><code>I64 QueueSize(CQueue *q)</code></td><td>Return the number of elements in the queue.</td></tr>
+        <tr><td><code>U0 QueueFree(CQueue *q)</code></td><td>Free the queue.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- stack.HC -->
+    <h3 id="stdlib-stack">stack.HC &mdash; Stack</h3>
+    <p>A LIFO stack of <code>I64</code> values backed by a dynamic array.</p>
+<pre><code>class CStack {
+  I64 *data, cap, top;
+};</code></pre>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>U0 StackInit(CStack *s)</code></td><td>Initialize a stack in place.</td></tr>
+        <tr><td><code>U0 StackPush(CStack *s, I64 val)</code></td><td>Push <code>val</code> onto the top of the stack.</td></tr>
+        <tr><td><code>I64 StackPop(CStack *s)</code></td><td>Pop and return the top element.</td></tr>
+        <tr><td><code>I64 StackPeek(CStack *s)</code></td><td>Return the top element without removing it.</td></tr>
+        <tr><td><code>Bool StackEmpty(CStack *s)</code></td><td>Return <code>TRUE</code> if the stack is empty.</td></tr>
+        <tr><td><code>I64 StackSize(CStack *s)</code></td><td>Return the number of elements in the stack.</td></tr>
+        <tr><td><code>U0 StackFree(CStack *s)</code></td><td>Free the stack.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- tree.HC -->
+    <h3 id="stdlib-tree">tree.HC &mdash; Binary Search Tree</h3>
+    <p>A simple binary search tree storing <code>I64</code> keys.</p>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>I64 TreeNew()</code></td><td>Initialize tree, returns root index (-1).</td></tr>
+        <tr><td><code>I64 TreeAlloc()</code></td><td>Allocate a new tree node, returns index.</td></tr>
+        <tr><td><code>I64 TreeInsert(I64 root, I64 k)</code></td><td>Insert key, returns new root.</td></tr>
+        <tr><td><code>I64 TreeFind(I64 root, I64 k)</code></td><td>Find key, returns 1 if found, 0 otherwise.</td></tr>
+        <tr><td><code>U0 TreeWalk(I64 node)</code></td><td>Inorder traversal, prints keys.</td></tr>
+        <tr><td><code>U0 TreeFree()</code></td><td>Free all tree storage.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- list.HC -->
+    <h3 id="stdlib-list">list.HC &mdash; Doubly-Linked List</h3>
+    <p>A doubly-linked list based on the TempleOS <code>CQue</code> pattern.</p>
+<pre><code>class CQue {
+  CQue *next;
+  CQue *prev;
+  I64 val;
+};</code></pre>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>QueInit</code></td><td>Initialize a list head node.</td></tr>
+        <tr><td><code>QueInsAfter</code></td><td>Insert a node after a given node.</td></tr>
+        <tr><td><code>QueRem</code></td><td>Remove a node from the list.</td></tr>
+        <tr><td><code>QuePush</code></td><td>Push a node onto the end of the list.</td></tr>
+        <tr><td><code>QuePopFront</code></td><td>Remove and return the front node.</td></tr>
+        <tr><td><code>QueCnt</code></td><td>Return the number of nodes in the list.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- set.HC -->
+    <h3 id="stdlib-set">set.HC &mdash; Integer Set</h3>
+    <p>A set for storing unique <code>I64</code> values. Uses global state; only one set at a time.</p>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>U0 SetNew()</code></td><td>Initialize a new set.</td></tr>
+        <tr><td><code>U0 SetAdd(I64 k)</code></td><td>Add a value to the set.</td></tr>
+        <tr><td><code>U0 SetRemove(I64 k)</code></td><td>Remove a value from the set.</td></tr>
+        <tr><td><code>I64 SetHas(I64 k)</code></td><td>Check if a value exists in the set.</td></tr>
+        <tr><td><code>U0 SetFree()</code></td><td>Free the set.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- sort.HC -->
+    <h3 id="stdlib-sort">sort.HC &mdash; Sorting</h3>
+    <p>Provides sorting for arrays of <code>I64</code>.</p>
+<pre><code>U0 SortI64(I64 *arr, I64 n);</code></pre>
+
+    <h4>Example</h4>
+<pre><code>#include "sort.HC"
+
+I64 a[5] = {5, 3, 1, 4, 2};
+SortI64(a, 5);
+// a is now {1, 2, 3, 4, 5}</code></pre>
+
+    <!-- regex.HC -->
+    <h3 id="stdlib-regex">regex.HC &mdash; Regular Expressions</h3>
+    <p>A lightweight regex engine supporting common pattern syntax.</p>
+<pre><code>I64 RegMatch(U8 *pattern, U8 *text);</code></pre>
+    <p>Supported pattern syntax:</p>
+    <table>
+      <thead><tr><th>Pattern</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>^</code></td><td>Anchor to start of string</td></tr>
+        <tr><td><code>$</code></td><td>Anchor to end of string</td></tr>
+        <tr><td><code>.</code></td><td>Match any single character</td></tr>
+        <tr><td><code>*</code></td><td>Match previous element zero or more times</td></tr>
+        <tr><td><code>+</code></td><td>Match previous element one or more times</td></tr>
+        <tr><td><code>?</code></td><td>Match previous element zero or one time</td></tr>
+        <tr><td><code>[abc]</code></td><td>Match any character in the set</td></tr>
+        <tr><td><code>[a-z]</code></td><td>Match literal characters listed (no range expansion &mdash; <code>[a-z]</code> matches only <code>a</code>, <code>-</code>, and <code>z</code>)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Example</h4>
+<pre><code>#include "regex.HC"
+
+if (RegMatch("^[a-z]+@[a-z]+\\.[a-z]+$", "user@example.com"))
+  "Valid email pattern\n";</code></pre>
+
+    <!-- math.HC -->
+    <h3 id="stdlib-math">math.HC &mdash; Math Utilities</h3>
+    <p>Mathematical constants and additional functions beyond the built-in math builtins.</p>
+
+    <h4>Constants</h4>
+    <table>
+      <thead><tr><th>Name</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td><code>PI</code></td><td>3.14159265358979323846</td></tr>
+        <tr><td><code>TAU</code></td><td>6.28318530717958647692</td></tr>
+        <tr><td><code>E_VAL</code></td><td>2.71828182845904523536</td></tr>
+        <tr><td><code>SQRT2</code></td><td>1.41421356237309504880</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Functions</h4>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>F64 DegToRad(F64 deg)</code></td><td>Convert degrees to radians.</td></tr>
+        <tr><td><code>F64 RadToDeg(F64 rad)</code></td><td>Convert radians to degrees.</td></tr>
+        <tr><td><code>F64 SinD(F64 x)</code></td><td>Alias for <code>Sin</code> (operates in radians).</td></tr>
+        <tr><td><code>F64 CosD(F64 x)</code></td><td>Alias for <code>Cos</code> (operates in radians).</td></tr>
+        <tr><td><code>F64 TanD(F64 x)</code></td><td>Alias for <code>Tan</code> (operates in radians).</td></tr>
+        <tr><td><code>F64 Hypot(F64 x, F64 y)</code></td><td>Hypotenuse: sqrt(x*x + y*y).</td></tr>
+        <tr><td><code>I64 GCD(I64 a, I64 b)</code></td><td>Greatest common divisor.</td></tr>
+        <tr><td><code>I64 IsPrime(I64 n)</code></td><td>Primality test.</td></tr>
+        <tr><td><code>F64 Lerp(F64 a, F64 b, F64 t)</code></td><td>Linear interpolation: a + t*(b-a).</td></tr>
+        <tr><td><code>F64 ClampF64(F64 x, F64 lo, F64 hi)</code></td><td>Clamp a float to a range.</td></tr>
+        <tr><td><code>I64 RoundI64(F64 x)</code></td><td>Round a float to the nearest integer.</td></tr>
+        <tr><td><code>F64 FAbs(F64 x)</code></td><td>Float absolute value.</td></tr>
+        <tr><td><code>F64 FMin(F64 a, F64 b)</code></td><td>Float minimum.</td></tr>
+        <tr><td><code>F64 FMax(F64 a, F64 b)</code></td><td>Float maximum.</td></tr>
+        <tr><td><code>I64 IsPow2(I64 x)</code></td><td>Test if <code>x</code> is a power of 2.</td></tr>
+        <tr><td><code>I64 NextPow2(I64 x)</code></td><td>Return the next power of 2 greater than or equal to <code>x</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- strings.HC / string_extra.HC -->
+    <h3 id="stdlib-strings">strings.HC / string_extra.HC &mdash; String Utilities</h3>
+    <p>Additional string manipulation functions beyond the core builtins. These modules provide higher-level string operations such as trimming, splitting, reversing, and substring extraction. Include with <code>#include "strings.HC"</code> or <code>#include "string_extra.HC"</code>.</p>
+    <table>
+      <thead><tr><th>Function</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>StrCopy(U8 *dst, U8 *src)</code></td><td>Copy string (returns <code>dst</code>).</td></tr>
+        <tr><td><code>StrNCopy(U8 *dst, U8 *src, I64 n)</code></td><td>Bounded string copy.</td></tr>
+        <tr><td><code>StrFindCh(U8 *s, U8 ch)</code></td><td>Find character index.</td></tr>
+        <tr><td><code>StrReverse(U8 *s)</code></td><td>Reverse string in place.</td></tr>
+        <tr><td><code>I64ToStr(I64 val, U8 *buf)</code></td><td>Integer to string.</td></tr>
+        <tr><td><code>StrTrim(U8 *s)</code></td><td>Trim whitespace.</td></tr>
+        <tr><td><code>StrReplace(U8 *s, U8 *find, U8 *repl)</code></td><td>String replacement.</td></tr>
+        <tr><td><code>StrStartsWith(U8 *s, U8 *prefix)</code></td><td>Prefix check.</td></tr>
+        <tr><td><code>StrEndsWith(U8 *s, U8 *suffix)</code></td><td>Suffix check.</td></tr>
+        <tr><td><code>StrRepeat(U8 *s, I64 n)</code></td><td>Repeat string <code>n</code> times.</td></tr>
+        <tr><td><code>I64Str(I64 n)</code></td><td>Integer to allocated string.</td></tr>
+        <tr><td><code>F64Str(F64 f)</code></td><td>Float to allocated string.</td></tr>
+        <tr><td><code>StrTrimInPlace(U8 *s)</code></td><td>Trim whitespace in place (from string_extra.HC).</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 7. Architecture                                              -->
+  <!-- ============================================================ -->
+  <section id="architecture-detail">
+    <h2>7. Architecture</h2>
+    <p>The HolyC compiler is structured as a multi-stage pipeline. Each stage transforms the program representation and passes it to the next.</p>
+
+    <h3>1. Lexer (<code>src/lexer/</code>)</h3>
+    <p>The lexer (tokenizer) reads HolyC source text and produces a stream of <code>TokenKind</code> values. It recognizes all HolyC keywords, operators, identifiers, and literals (integer, floating-point, string, and character). Numeric parsing uses a 64-byte stack buffer to avoid heap allocation. The lexer feeds tokens to the preprocessor and then the parser.</p>
+
+    <h3>2. Preprocessor (<code>src/preprocessor/</code>)</h3>
+    <p>The preprocessor operates on the token stream before parsing. It handles:</p>
+    <ul>
+      <li><strong>Macro expansion</strong> &mdash; object-like and function-like macros</li>
+      <li><strong>Conditional compilation</strong> &mdash; <code>#if</code>, <code>#ifdef</code>, <code>#ifndef</code>, <code>#elif</code>, <code>#else</code>, <code>#endif</code>, <code>#ifaot</code>, <code>#ifjit</code></li>
+      <li><strong>File inclusion</strong> &mdash; <code>#include</code> with search path support</li>
+      <li><strong>Variadic macros</strong> &mdash; <code>__VA_ARGS__</code></li>
+      <li><strong>Token pasting</strong> &mdash; <code>##</code> operator</li>
+      <li><strong>Stringification</strong> &mdash; <code>#</code> operator</li>
+      <li><strong>Compile-time execution</strong> &mdash; <code>#exe { }</code> blocks</li>
+    </ul>
+    <p>The <code>isActive()</code> check that determines whether the current token stream is inside an active conditional branch runs in O(1) time via an <code>inactive_depth_</code> counter, rather than scanning the condition stack.</p>
+
+    <h3>3. Parser (<code>src/parser/</code>)</h3>
+    <p>A recursive-descent parser builds an Abstract Syntax Tree (AST) from the token stream. It uses a circular lookahead buffer for O(1) token consumption. The parser handles all HolyC-specific syntax including string output statements, postfix type casts, the backtick power operator, and default argument values. All AST nodes are arena-allocated, avoiding individual <code>new</code>/<code>delete</code> calls. Class names are tracked in a set with transparent comparison to avoid unnecessary string allocations during identifier lookups.</p>
+
+    <h3>4. Semantic Analysis (<code>src/sema/</code>)</h3>
+    <p>The semantic analysis pass walks the AST to perform type checking, name resolution, and type inference. Primitive types (<code>I64</code>, <code>U8</code>, <code>F64</code>, etc.) are cached as singletons to avoid per-literal arena allocation. The pass uses <code>NodeKind</code>-based dispatch with <code>static_cast</code> instead of <code>dynamic_cast</code> chains for performance. It resolves class inheritance hierarchies, validates function call arguments against parameter lists, and ensures type safety for all operations.</p>
+
+    <h3>5. Interpreter (<code>src/interpreter/</code>)</h3>
+    <p>The tree-walk interpreter executes the AST directly using a frame-based call stack. Each <code>Value</code> is 32 bytes, using a custom SmallStr SSO type (16 bytes, inline for strings up to 14 characters). Over 100 built-in functions are dispatched via a hash map with a single-lookup pattern. The interpreter supports full HolyC semantics including goto (with backward jumps for loop patterns), try/catch/throw exception handling, string output, pointer arithmetic, and class method dispatch. Variables are scoped correctly with direct insertion into the current frame to prevent cross-frame overwrites.</p>
+
+    <h3>6. LLVM Codegen (<code>src/codegen/</code>)</h3>
+    <p>The code generator lowers the AST to LLVM IR. It features type memoization (caching <code>Type*</code> to <code>llvm::Type*</code> mappings), struct layout computation with field index optimization for O(1) field access, and proper handling of pointer arithmetic via GEP instructions. Cross-type conversions (pointer-to-int, int-to-pointer, float widening/narrowing) are handled at all boundary points. Vararg functions use a TLS buffer ABI for user-defined variadics.</p>
+
+    <h3>7. JIT Engine</h3>
+    <p>The JIT backend uses LLVM's ORC LLJIT engine. It includes a SHA-256 content-based bitcode cache: before code generation, the source file's content is hashed and checked against cached bitcode files. On a cache hit, the cached bitcode is loaded directly via <code>parseBitcodeFile</code>, bypassing parsing, semantic analysis, and code generation entirely. The cache key uses file content (not path), so stale cache entries are impossible.</p>
+
+    <h3>8. AOT Compiler</h3>
+    <p>The AOT backend compiles HolyC to native binaries via LLVM's machine code emission. It supports optimization levels <code>-O0</code> through <code>-O3</code>, DWARF debug information (<code>-g</code>), and cross-compilation to <code>aarch64-linux-gnu</code> and <code>x86_64-w64-mingw32</code> targets. The output can be either an object file (<code>.o</code>) or a fully linked executable.</p>
+
+    <h3>9. Arena Allocator</h3>
+    <p>All AST nodes are allocated from a custom arena allocator using 64KB blocks. The arena tracks destructors for non-trivially-destructible objects (those containing <code>std::vector</code> or <code>std::string</code> fields) and calls them in reverse order during cleanup. This eliminates the overhead of individual <code>new</code>/<code>delete</code> calls for the thousands of AST nodes created during compilation and ensures no memory leaks.</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 8. Tools                                                     -->
+  <!-- ============================================================ -->
+  <section id="tools">
+    <h2>8. Tools</h2>
+
+    <h3>Formatter (<code>--format</code>)</h3>
+    <p>The built-in code formatter applies TempleOS-style formatting to HolyC source files. It enforces consistent indentation, spacing around operators, and brace placement.</p>
+<pre><code># Format a single file
+./hcc --format source.HC</code></pre>
+
+    <h3>LSP Server (<code>--lsp</code>)</h3>
+    <p>The HolyC compiler includes a Language Server Protocol (LSP) server for IDE integration. It supports:</p>
+    <ul>
+      <li><strong>documentSymbol</strong> &mdash; outline of functions, classes, and variables</li>
+      <li><strong>Diagnostics</strong> &mdash; syntax and type errors reported in real time</li>
+    </ul>
+    <p>To use the LSP, configure your editor to run <code>hcc --lsp</code> as the language server process for <code>.HC</code> files.</p>
+
+    <h4>VS Code Configuration</h4>
+    <p>Add to your <code>settings.json</code> or use an extension that supports custom language servers, pointing the command to the <code>hcc</code> binary with the <code>--lsp</code> flag.</p>
+
+    <h4>Neovim Configuration</h4>
+<pre><code>-- In your LSP configuration
+require('lspconfig').holyc.setup {
+  cmd = { '/path/to/hcc', '--lsp' },
+  filetypes = { 'holyc' },
+}</code></pre>
+
+    <h3>GDB Pretty-Printers (<code>tools/holyc_gdb.py</code>)</h3>
+    <p>The project includes GDB pretty-printers for visual display of HolyC runtime values during debugging sessions.</p>
+    <p><strong>Setup:</strong></p>
+<pre><code># In GDB or your .gdbinit file
+source /path/to/HolyC/tools/holyc_gdb.py</code></pre>
+    <p>Compile your HolyC programs with the <code>-g</code> flag to include debug information:</p>
+<pre><code>./hcc -g -o myprogram myprogram.HC
+gdb ./myprogram</code></pre>
+
+    <h3>REPL (<code>--repl</code>)</h3>
+    <p>The interactive REPL (Read-Eval-Print Loop) provides an exploratory environment for HolyC code. Expression results are auto-printed.</p>
+<pre><code>./hcc --repl</code></pre>
+
+    <h4>REPL Commands</h4>
+    <table>
+      <thead><tr><th>Command</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>:reset</code></td><td>Clear all state (variables, functions, classes) and start fresh.</td></tr>
+        <tr><td><code>:memory</code></td><td>Display current memory usage statistics.</td></tr>
+        <tr><td><code>:time &lt;expr&gt;</code></td><td>Time a single expression. Usage: <code>:time &lt;expr&gt;</code></td></tr>
+        <tr><td><code>:import &lt;file&gt;</code></td><td>Load and execute a HolyC source file into the current session.</td></tr>
+        <tr><td><code>:load &lt;file&gt;</code></td><td>Load and execute a HolyC file.</td></tr>
+        <tr><td><code>:type &lt;expr&gt;</code></td><td>Show the type of an expression.</td></tr>
+        <tr><td><code>:vars</code></td><td>List all global variables.</td></tr>
+        <tr><td><code>:funcs</code></td><td>List all defined functions.</td></tr>
+        <tr><td><code>:help</code></td><td>Show available REPL commands.</td></tr>
+        <tr><td><code>:quit</code> / <code>:q</code></td><td>Exit the REPL.</td></tr>
+      </tbody>
+    </table>
+
+    <h4>REPL Example Session</h4>
+<pre><code>&gt; 2 + 3
+5
+&gt; I64 x = 42;
+&gt; x * 2
+84
+&gt; I64 Fib(I64 n) { if (n &lt;= 1) return n; return Fib(n-1) + Fib(n-2); }
+&gt; Fib(10)
+55
+&gt; :time Fib(30)
+832040
+(0.023s)</code></pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 9. Testing                                                   -->
+  <!-- ============================================================ -->
+  <section id="testing">
+    <h2>9. Testing</h2>
+    <p>The HolyC compiler has 352 tests covering all three execution modes.</p>
+
+    <h3>Test Suite Overview</h3>
+    <ul>
+      <li><strong>352 tests</strong> across 126 test files</li>
+      <li>Each test file is run in <strong>3 execution modes</strong>: interpreter, JIT, and AOT</li>
+      <li>Additional <strong>formatter mode</strong> tests verify formatting round-trips</li>
+      <li>Test source files use the <code>.HC</code> extension and live in the <code>tests/</code> directory</li>
+      <li>Expected output is stored in corresponding <code>.expected</code> files</li>
+    </ul>
+
+    <h3>Running the Tests</h3>
+<pre><code>ASAN_OPTIONS=detect_leaks=0 bash tests/run_tests.sh</code></pre>
+    <p>The <code>ASAN_OPTIONS=detect_leaks=0</code> environment variable is needed because the test runner uses AddressSanitizer builds.</p>
+
+    <h3>Test File Structure</h3>
+    <p>Each test consists of a <code>.HC</code> source file and an <code>.expected</code> file containing the exact expected stdout output. The test runner compiles and executes the source file in each mode, then compares the actual output to the expected output. Any mismatch is reported as a failure.</p>
+
+    <h3>Writing New Tests</h3>
+    <p>To add a new test:</p>
+    <ol>
+      <li>Create <code>tests/my_test.HC</code> with the HolyC program.</li>
+      <li>Create <code>tests/my_test.expected</code> with the exact expected output.</li>
+      <li>Run the test suite to verify all three modes produce the expected output.</li>
+    </ol>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- 10. Security                                                 -->
+  <!-- ============================================================ -->
+  <section id="security">
+    <h2>10. Security</h2>
+    <p>The HolyC compiler has undergone multiple rounds of security auditing with all findings fixed. The following hardening measures are in place throughout the runtime and compiler:</p>
+
+    <h3>Memory Safety</h3>
+    <ul>
+      <li><strong>Bounds-checked array indexing</strong> &mdash; Array accesses validate that the index is non-negative and within the allocated size. Indices exceeding <code>0x10000000 / elemSize</code> are rejected.</li>
+      <li><strong>Buffer overflow protection</strong> &mdash; String builtins (<code>StrCpyN</code>, <code>StrCatN</code>, <code>SPrint</code>) check the destination buffer capacity via <code>heap_.size()</code> before writing and truncate if needed.</li>
+      <li><strong>Memory operation size limits</strong> &mdash; <code>MemMove</code>, <code>MemSet</code>, and <code>MemCpy</code> cap their size argument at 500MB to prevent runaway operations.</li>
+      <li><strong>Allocation guards</strong> &mdash; <code>ReAlloc</code> rejects negative or huge (>1GB) size requests. <code>FileReadAll</code> guards against files larger than 256MB.</li>
+    </ul>
+
+    <h3>Integer Safety</h3>
+    <ul>
+      <li><strong>Shift overflow guards</strong> &mdash; All shift operations (<code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>&lt;&lt;=</code>, <code>&gt;&gt;=</code>) validate that the shift amount is in the range <code>[0, 63]</code>.</li>
+      <li><strong>Division by zero and INT64_MIN protection</strong> &mdash; Division and modulo operations guard against <code>INT64_MIN / -1</code> undefined behavior.</li>
+      <li><strong>Bit operation guards</strong> &mdash; <code>Bt</code>, <code>Bts</code>, <code>Btr</code>, and <code>Btc</code> validate that the bit index is in <code>[0, 63]</code> and use <code>1ULL</code> shifts. Null pointer parameters are checked.</li>
+      <li><strong>Bit-field extraction safety</strong> &mdash; Bit-field operations validate that width and start position are within valid ranges.</li>
+      <li><strong>Safe string-to-number parsing</strong> &mdash; <code>Str2I64</code> and <code>Str2F64</code> wrap their underlying C++ calls in try-catch blocks.</li>
+    </ul>
+
+    <h3>Data Structure Safety</h3>
+    <ul>
+      <li><strong>Capacity caps</strong> &mdash; Dynamic data structures (<code>CVec</code>, <code>CQueue</code>, <code>CStack</code>) are capped at 250 million elements to prevent memory exhaustion.</li>
+      <li><strong>Null allocation checks</strong> &mdash; <code>HashMapRehash</code> and <code>HashMapInit</code> verify that <code>MAlloc</code>/<code>CAlloc</code> return non-null before proceeding.</li>
+    </ul>
+
+    <h3>File System Safety</h3>
+    <ul>
+      <li><strong>Path traversal prevention</strong> &mdash; The <code>#include</code> directive rejects paths containing <code>..</code> components to prevent directory traversal attacks. System include paths (e.g. <code>/usr/include/</code>) are allowed for C interop.</li>
+    </ul>
+
+    <h3>Regex Safety</h3>
+    <ul>
+      <li><strong>ReDoS protection</strong> &mdash; The regex engine enforces a maximum of 100,000 iterations per match alongside the existing recursion depth limit, preventing catastrophic backtracking on adversarial patterns.</li>
+    </ul>
+
+    <h3>Runtime Hardening</h3>
+    <ul>
+      <li><strong>Null pointer guards</strong> &mdash; Pointer dereferences and bit-manipulation builtins check for null before access.</li>
+      <li><strong>Format string width overflow</strong> &mdash; The <code>formatPrint</code> implementation caps width specifiers at 10,000 to prevent memory exhaustion.</li>
+      <li><strong>GetStr cast safety</strong> &mdash; The <code>max</code> parameter is clamped to 1GB before casting to <code>int</code>.</li>
+    </ul>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- Footer                                                       -->
+  <!-- ============================================================ -->
+  <footer>
+    <p><a href="index.html">Back to Home</a></p>
+    <p>HolyC Compiler Documentation</p>
+  </footer>
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HolyC Compiler</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="container">
+
+  <!-- Hero Image -->
+  <img src="img/2friends.png" class="hero-img" alt="HolyC Compiler">
+
+  <!-- Title Section -->
+  <header id="top">
+    <h1>HolyC Compiler</h1>
+    <p class="tagline">A modern C++17 / LLVM 18 compiler for Terry Davis's HolyC language</p>
+  </header>
+
+  <!-- Navigation Bar -->
+  <nav class="top-nav">
+    <a href="#features">Features</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#quickstart">Quick Start</a>
+    <a href="docs.html">Documentation</a>
+    <a href="https://github.com/pacakutekagudabasa/HolyC">GitHub</a>
+  </nav>
+
+  <!-- Features Overview -->
+  <main>
+    <section id="features">
+      <h2>Features</h2>
+      <div class="feature-grid">
+
+        <div class="feature-card">
+          <h3>Execution Modes</h3>
+          <ul>
+            <li>Tree-walk Interpreter for rapid development</li>
+            <li>LLVM JIT via ORC LLJIT with SHA-256 caching</li>
+            <li>LLVM AOT native binary compilation</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>Type System</h3>
+          <ul>
+            <li>Void (<code>U0</code>), unsigned integers (<code>U8</code>, <code>U16</code>, <code>U32</code>, <code>U64</code>), signed integers (<code>I8</code>, <code>I16</code>, <code>I32</code>, <code>I64</code>)</li>
+            <li>Floating point (<code>F32</code>, <code>F64</code>), <code>Bool</code></li>
+            <li>Pointers (multi-level), arrays (multi-dimensional), classes with inheritance</li>
+            <li>Enums, unions, typedefs, C-style function pointers</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>HolyC Extensions</h3>
+          <ul>
+            <li>Power operator <code>`</code> (backtick)</li>
+            <li>Postfix type casting: <code>expr(I64)</code></li>
+            <li><code>^^</code> logical XOR</li>
+            <li>String output syntax: <code>"Hello %s\n", name;</code></li>
+            <li><code>case N..M:</code> range syntax in switch</li>
+            <li><code>#exe { }</code> compile-time execution blocks</li>
+            <li>Default argument values</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>Standard Library (stdlib/)</h3>
+          <ul>
+            <li>vector.HC, hashmap.HC, queue.HC, stack.HC</li>
+            <li>tree.HC, list.HC, set.HC</li>
+            <li>sort.HC (QuickSort), regex.HC</li>
+            <li>math.HC, strings.HC</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>100+ Runtime Builtins</h3>
+          <ul>
+            <li><strong>Memory:</strong> MAlloc, CAlloc, Free, ReAlloc, MemCpy, MemSet, MemMove</li>
+            <li><strong>Strings:</strong> StrLen, StrCmp, StrCpy, StrCat, StrFind, StrNew, StrDup, WildMatch</li>
+            <li><strong>Math:</strong> Abs, Min, Max, Sqrt, Sin, Cos, Tan, Log, Exp, Pow, Floor, Ceil</li>
+            <li><strong>I/O:</strong> Print, GetChar, GetStr, FileOpen, FileRead, FileWrite</li>
+            <li><strong>Bit ops:</strong> Bt, Bts, Btr, Btc, Bsf, Bsr, BCnt</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>Tooling</h3>
+          <ul>
+            <li>Code formatter (TempleOS style)</li>
+            <li>LSP server for IDE integration</li>
+            <li>GDB pretty-printers</li>
+            <li>Interactive REPL with <code>:reset</code>, <code>:memory</code>, <code>:time</code>, <code>:import</code></li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>Preprocessor</h3>
+          <ul>
+            <li><code>#define</code>, <code>#if</code>, <code>#include</code></li>
+            <li>Variadic macros, token paste (<code>##</code>), stringification (<code>#</code>)</li>
+            <li><code>#exe</code> compile-time execution blocks</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>Other</h3>
+          <ul>
+            <li>Exception handling (try/catch/throw)</li>
+            <li>Inline assembly with GCC extended constraints</li>
+            <li>Cross-compilation (aarch64, x86_64-mingw)</li>
+            <li><code>extern "C"</code> interop with system libraries</li>
+            <li>Static local variables, <code>reg</code> keyword</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture">
+      <h2>Architecture</h2>
+      <img src="img/architecture.png" alt="HolyC Compiler Pipeline Diagram" class="pipeline-diagram">
+      <p class="arch-description">
+        The HolyC compiler pipeline flows from source text through lexing, preprocessing, and parsing
+        into an AST. Semantic analysis resolves types and validates the program. From there, three
+        execution backends are available: a tree-walk interpreter for immediate execution, an LLVM JIT
+        compiler for optimized runtime performance with SHA-256 bitcode caching, and an LLVM AOT
+        compiler that emits native binaries. The formatter and LSP server operate directly on the AST
+        for code formatting and IDE integration.
+      </p>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section id="quickstart">
+      <h2>Quick Start</h2>
+
+      <h3>Build</h3>
+      <pre><code># Dependencies: CMake 3.20+, LLVM 14-18, C++17 compiler
+git clone https://github.com/pacakutekagudabasa/HolyC.git
+cd HolyC
+mkdir build &amp;&amp; cd build
+cmake ..
+make -j$(nproc)</code></pre>
+
+      <h3>Run Modes</h3>
+      <pre><code># Interpreter
+./hcc --interpret hello.HC
+
+# JIT compile &amp; run
+./hcc --jit hello.HC
+
+# AOT compile to native binary
+./hcc -o hello hello.HC
+./hello
+
+# Interactive REPL
+./hcc --repl
+
+# Format code
+./hcc --format code.HC
+
+# LSP server
+./hcc --lsp</code></pre>
+
+      <h3>Example Program (hello.HC)</h3>
+      <pre><code>// HolyC Hello World
+U0 Main()
+{
+  I64 i;
+  for (i = 0; i &lt; 10; i++)
+    "Hello World %d\n", i;
+}
+
+Main;</code></pre>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>HolyC Compiler &mdash; Built with C++17 and LLVM 18</p>
+    <p><a href="docs.html">Full Documentation</a> &middot; <a href="https://github.com/pacakutekagudabasa/HolyC">GitHub</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,588 @@
+/* ============================================================
+   HolyC Compiler — TempleOS-Inspired Website Stylesheet
+   ============================================================
+   Color palette:
+     Background   : darkslategray
+     Container    : #55FFFF (cyan)
+     Accent/Gold  : #FFD700 (gold)
+     Code bg      : #44DDDD
+     Alt row      : #88FFFF
+     Link         : darkblue / blue / darkcyan
+   ============================================================ */
+
+/* ---- Reset & Base ---- */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: darkslategray;
+    font-family: 'Gill Sans', Calibri, sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: #1a1a1a;
+}
+
+#container {
+    width: 1000px;
+    max-width: 100%;
+    margin: auto;
+    border: medium solid gold;
+    padding: 20px;
+    background-color: #55FFFF;
+    line-height: 175%;
+    font-size: 18px;
+}
+
+/* ---- Links ---- */
+
+a:link {
+    color: darkblue;
+}
+
+a:hover {
+    color: blue;
+    text-decoration: underline;
+}
+
+a:visited {
+    color: darkcyan;
+}
+
+/* ---- Headings ---- */
+
+h1, h2, h3 {
+    font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+}
+
+h1 {
+    font-size: 2.4em;
+    border-bottom: 4px solid gold;
+    padding-bottom: 8px;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 1.8em;
+    border-bottom: 3px solid gold;
+    padding-bottom: 6px;
+    margin-top: 1.4em;
+}
+
+h3 {
+    font-size: 1.4em;
+    border-left: 5px solid gold;
+    padding-left: 12px;
+    margin-top: 1.2em;
+}
+
+h4 {
+    font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+    font-size: 1.15em;
+    color: #2a2a2a;
+}
+
+/* ---- Horizontal Rule ---- */
+
+hr {
+    border: none;
+    border-top: 2px solid gold;
+    margin: 24px 0;
+}
+
+/* ---- Buttons ---- */
+
+button, .btn {
+    background-color: gold;
+    border: 2px solid gold;
+    font-size: 18px;
+    font-style: italic;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #1a1a1a;
+    font-family: 'Gill Sans', Calibri, sans-serif;
+    transition: background-color 0.15s, box-shadow 0.15s;
+}
+
+button:hover, .btn:hover {
+    background-color: #ffe033;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+button:active, .btn:active {
+    background-color: #e6c200;
+}
+
+/* ---- Inline Code ---- */
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #44DDDD;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.92em;
+    word-break: break-word;
+}
+
+/* ---- Block Code / Pre ---- */
+
+pre {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #44DDDD;
+    padding: 16px 20px;
+    border-radius: 6px;
+    border: 1px solid #33BBBB;
+    overflow-x: auto;
+    line-height: 150%;
+    font-size: 16px;
+    -webkit-overflow-scrolling: touch;
+}
+
+pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+    word-break: normal;
+}
+
+/* ---- Hero Image ---- */
+
+.hero-img {
+    display: block;
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    margin: 0 auto 20px auto;
+    border: 2px solid gold;
+}
+
+/* ---- Tagline ---- */
+
+.tagline {
+    font-size: 1.25em;
+    font-style: italic;
+    font-weight: 300;
+    color: #2a2a2a;
+    margin-top: 4px;
+    margin-bottom: 12px;
+}
+
+/* ---- Architecture Description ---- */
+
+.arch-description {
+    font-size: 1em;
+    line-height: 180%;
+    color: #1a1a1a;
+    margin-top: 16px;
+    max-width: 900px;
+}
+
+/* ---- Navigation Bar ---- */
+
+nav.top-nav {
+    background-color: gold;
+    padding: 10px 20px;
+    margin: 0 -20px 20px -20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    align-items: center;
+}
+
+nav.top-nav a {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+    font-size: 17px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    transition: background-color 0.15s;
+}
+
+nav.top-nav a:hover {
+    background-color: #ffe033;
+    color: #000;
+    text-decoration: none;
+}
+
+nav.top-nav a:visited {
+    color: #1a1a1a;
+}
+
+/* ---- Tables ---- */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 17px;
+}
+
+th, td {
+    border: 2px solid gold;
+    padding: 10px 14px;
+    text-align: left;
+}
+
+th {
+    background-color: gold;
+    color: #1a1a1a;
+    font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #88FFFF;
+}
+
+tr:nth-child(odd) {
+    background-color: #55FFFF;
+}
+
+tr:hover {
+    background-color: #99FFFF;
+}
+
+/* ---- Section Spacing ---- */
+
+section {
+    margin-bottom: 32px;
+}
+
+section + section {
+    border-top: 1px solid gold;
+    padding-top: 24px;
+}
+
+/* ---- Sidebar / TOC Navigation (for docs page) ---- */
+
+.page-with-sidebar {
+    display: flex;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 100vh;
+    background-color: #2F4F4F;
+    border-right: 3px solid gold;
+    padding: 20px 14px;
+    overflow-y: auto;
+    z-index: 100;
+    flex-shrink: 0;
+}
+
+.sidebar h3 {
+    color: gold;
+    font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+    font-size: 1.1em;
+    border-left: none;
+    padding-left: 0;
+    margin-top: 0;
+    margin-bottom: 12px;
+    border-bottom: 2px solid gold;
+    padding-bottom: 6px;
+}
+
+.sidebar a {
+    display: block;
+    color: #55FFFF;
+    text-decoration: none;
+    padding: 5px 8px;
+    font-size: 15px;
+    border-radius: 3px;
+    line-height: 160%;
+    transition: background-color 0.15s;
+}
+
+.sidebar a:hover {
+    background-color: rgba(255, 215, 0, 0.2);
+    color: gold;
+    text-decoration: none;
+}
+
+.sidebar a:visited {
+    color: #88DDDD;
+}
+
+.sidebar .toc-indent {
+    padding-left: 20px;
+    font-size: 14px;
+}
+
+/* Main content area next to sidebar */
+.main-content {
+    margin-left: 240px;
+    padding: 20px;
+    flex: 1;
+    min-width: 0;
+}
+
+.main-content #container {
+    max-width: 1000px;
+    width: 100%;
+}
+
+/* Scrollbar styling for sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: #2F4F4F;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: gold;
+    border-radius: 3px;
+}
+
+/* ---- Feature Grid ---- */
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+}
+
+.feature-card {
+    background-color: #44DDDD;
+    border: 2px solid gold;
+    border-radius: 6px;
+    padding: 16px;
+}
+
+.feature-card h3 {
+    margin-top: 0;
+    border-left: none;
+    padding-left: 0;
+    font-size: 1.2em;
+    border-bottom: 2px solid gold;
+    padding-bottom: 4px;
+}
+
+.feature-card ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+}
+
+.feature-card li {
+    line-height: 160%;
+}
+
+/* ---- Pipeline / Architecture Diagram ---- */
+
+.pipeline-diagram {
+    display: block;
+    max-width: 100%;
+    margin: 20px auto;
+    border: 2px solid gold;
+    border-radius: 6px;
+    background-color: #44DDDD;
+    padding: 10px;
+}
+
+/* ---- Footer ---- */
+
+footer {
+    text-align: center;
+    border-top: 3px solid gold;
+    padding-top: 16px;
+    margin-top: 32px;
+    font-size: 15px;
+    color: #333;
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+/* Large screens — docs sidebar present */
+@media (max-width: 1300px) {
+    .main-content #container {
+        max-width: 900px;
+    }
+}
+
+/* Tablet — sidebar collapses to top banner */
+@media (max-width: 1080px) {
+    #container {
+        width: auto;
+        max-width: 96vw;
+        padding: 16px;
+    }
+
+    /* Sidebar becomes a horizontal scrollable banner */
+    .page-with-sidebar {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        max-height: 50vh;
+        border-right: none;
+        border-bottom: 3px solid gold;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 4px;
+        padding: 12px;
+    }
+
+    .sidebar h3 {
+        width: 100%;
+        margin-bottom: 6px;
+        border-bottom: 1px solid gold;
+        padding-bottom: 4px;
+        font-size: 1em;
+    }
+
+    .sidebar a {
+        font-size: 14px;
+        padding: 3px 6px;
+        line-height: 140%;
+    }
+
+    .sidebar .toc-indent {
+        padding-left: 10px;
+        font-size: 13px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 12px;
+    }
+
+    .main-content #container {
+        max-width: 100%;
+    }
+
+    /* Tables scroll horizontally */
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    body {
+        padding: 0;
+    }
+
+    #container {
+        padding: 12px;
+        font-size: 16px;
+        border-width: 2px;
+        border-left: none;
+        border-right: none;
+    }
+
+    h1 {
+        font-size: 1.6em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+
+    h3 {
+        font-size: 1.1em;
+    }
+
+    nav.top-nav {
+        margin: 0 -12px 16px -12px;
+        padding: 8px 12px;
+        gap: 4px 12px;
+    }
+
+    nav.top-nav a {
+        font-size: 15px;
+        padding: 4px 8px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .feature-card {
+        padding: 12px;
+    }
+
+    table {
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 6px 8px;
+    }
+
+    pre {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .tagline {
+        font-size: 1.05em;
+    }
+
+    .sidebar {
+        max-height: 40vh;
+        padding: 10px;
+    }
+
+    .sidebar h3 {
+        font-size: 0.9em;
+    }
+
+    .sidebar a {
+        font-size: 13px;
+        padding: 2px 4px;
+    }
+
+    .hero-img {
+        border-width: 1px;
+    }
+
+    /* Architecture SVG responsive */
+    .arch-description {
+        font-size: 0.92em;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.3em;
+    }
+
+    #container {
+        padding: 8px;
+        font-size: 15px;
+        line-height: 160%;
+    }
+
+    pre {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    th, td {
+        padding: 4px 6px;
+        font-size: 13px;
+    }
+
+    .feature-card h3 {
+        font-size: 1em;
+    }
+}

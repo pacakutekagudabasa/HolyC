@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 380" width="900" height="380">
+  <defs>
+    <!-- Arrowhead marker -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#FFD700"/>
+    </marker>
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#1a1a1a" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="380" rx="8" fill="#2F4F4F"/>
+  <rect x="2" y="2" width="896" height="376" rx="7" fill="none" stroke="#FFD700" stroke-width="2.5"/>
+
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="20" fill="#FFD700" font-weight="bold">HolyC Compiler Pipeline</text>
+
+  <!-- ========== Stage 1: Source.HC ========== -->
+  <rect x="20" y="70" width="120" height="54" rx="8" fill="#55FFFF" stroke="#FFD700" stroke-width="2" filter="url(#shadow)"/>
+  <text x="80" y="100" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="15" fill="#2F4F4F" font-weight="bold">Source.HC</text>
+
+  <!-- Arrow 1 → 2 -->
+  <line x1="140" y1="97" x2="168" y2="97" stroke="#FFD700" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+
+  <!-- ========== Stage 2: Lexer ========== -->
+  <rect x="170" y="70" width="110" height="54" rx="8" fill="#55FFFF" stroke="#FFD700" stroke-width="2" filter="url(#shadow)"/>
+  <text x="225" y="100" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="15" fill="#2F4F4F" font-weight="bold">Lexer</text>
+
+  <!-- Arrow 2 → 3 -->
+  <line x1="280" y1="97" x2="308" y2="97" stroke="#FFD700" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+
+  <!-- ========== Stage 3: Preprocessor ========== -->
+  <rect x="310" y="70" width="140" height="54" rx="8" fill="#55FFFF" stroke="#FFD700" stroke-width="2" filter="url(#shadow)"/>
+  <text x="380" y="100" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="15" fill="#2F4F4F" font-weight="bold">Preprocessor</text>
+
+  <!-- Arrow 3 → 4 -->
+  <line x1="450" y1="97" x2="478" y2="97" stroke="#FFD700" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+
+  <!-- ========== Stage 4: Parser ========== -->
+  <rect x="480" y="70" width="110" height="54" rx="8" fill="#55FFFF" stroke="#FFD700" stroke-width="2" filter="url(#shadow)"/>
+  <text x="535" y="100" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="15" fill="#2F4F4F" font-weight="bold">Parser</text>
+
+  <!-- Arrow 4 → 5 -->
+  <line x1="590" y1="97" x2="618" y2="97" stroke="#FFD700" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+
+  <!-- ========== Stage 5: Sema ========== -->
+  <rect x="620" y="70" width="110" height="54" rx="8" fill="#55FFFF" stroke="#FFD700" stroke-width="2" filter="url(#shadow)"/>
+  <text x="675" y="100" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="15" fill="#2F4F4F" font-weight="bold">Sema</text>
+
+  <!-- ========== Tool branches from Sema ========== -->
+
+  <!-- Horizontal connector from Sema right edge to tool column -->
+  <line x1="730" y1="97" x2="755" y2="97" stroke="#88CCCC" stroke-width="2" stroke-dasharray="5,3"/>
+
+  <!-- Vertical fork spanning all 3 tools -->
+  <line x1="755" y1="50" x2="755" y2="144" stroke="#88CCCC" stroke-width="2" stroke-dasharray="5,3"/>
+
+  <!-- Arm to Formatter -->
+  <line x1="755" y1="50" x2="778" y2="50" stroke="#88CCCC" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+
+  <!-- Arm to LSP Server -->
+  <line x1="755" y1="97" x2="778" y2="97" stroke="#88CCCC" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+
+  <!-- Arm to REPL -->
+  <line x1="755" y1="144" x2="778" y2="144" stroke="#88CCCC" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+
+  <!-- Formatter box -->
+  <rect x="781" y="30" width="106" height="38" rx="6" fill="#3A6B6B" stroke="#88CCCC" stroke-width="2" stroke-dasharray="6,3" filter="url(#shadow)"/>
+  <text x="834" y="54" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="13" fill="#CCFFFF" font-weight="bold">Formatter</text>
+
+  <!-- LSP Server box -->
+  <rect x="781" y="78" width="106" height="38" rx="6" fill="#3A6B6B" stroke="#88CCCC" stroke-width="2" stroke-dasharray="6,3" filter="url(#shadow)"/>
+  <text x="834" y="102" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="13" fill="#CCFFFF" font-weight="bold">LSP Server</text>
+
+  <!-- REPL box -->
+  <rect x="781" y="125" width="106" height="38" rx="6" fill="#3A6B6B" stroke="#88CCCC" stroke-width="2" stroke-dasharray="6,3" filter="url(#shadow)"/>
+  <text x="834" y="149" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="13" fill="#CCFFFF" font-weight="bold">REPL</text>
+
+  <!-- ========== Fan-out from Sema ========== -->
+
+  <!-- Vertical trunk from Sema bottom center -->
+  <line x1="675" y1="124" x2="675" y2="170" stroke="#FFD700" stroke-width="2.5"/>
+
+  <!-- Horizontal spread bar -->
+  <line x1="200" y1="170" x2="700" y2="170" stroke="#FFD700" stroke-width="2.5"/>
+
+  <!-- Vertical drop to Interpreter -->
+  <line x1="200" y1="170" x2="200" y2="220" stroke="#FFD700" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+
+  <!-- Vertical drop to LLVM JIT -->
+  <line x1="450" y1="170" x2="450" y2="220" stroke="#FFD700" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+
+  <!-- Vertical drop to LLVM AOT -->
+  <line x1="700" y1="170" x2="700" y2="220" stroke="#FFD700" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+
+  <!-- ========== Backend 1: Interpreter ========== -->
+  <rect x="110" y="222" width="180" height="80" rx="10" fill="#55FFFF" stroke="#FFD700" stroke-width="2.5" filter="url(#shadow)"/>
+  <text x="200" y="254" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="16" fill="#2F4F4F" font-weight="bold">Interpreter</text>
+  <text x="200" y="278" text-anchor="middle" font-family="Gill Sans, Calibri, sans-serif" font-size="13" fill="#555" font-style="italic">(tree-walk)</text>
+
+  <!-- ========== Backend 2: LLVM JIT ========== -->
+  <rect x="360" y="222" width="180" height="80" rx="10" fill="#55FFFF" stroke="#FFD700" stroke-width="2.5" filter="url(#shadow)"/>
+  <text x="450" y="254" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="16" fill="#2F4F4F" font-weight="bold">LLVM JIT</text>
+  <text x="450" y="278" text-anchor="middle" font-family="Gill Sans, Calibri, sans-serif" font-size="13" fill="#555" font-style="italic">(ORC LLJIT)</text>
+
+  <!-- ========== Backend 3: LLVM AOT ========== -->
+  <rect x="610" y="222" width="180" height="80" rx="10" fill="#55FFFF" stroke="#FFD700" stroke-width="2.5" filter="url(#shadow)"/>
+  <text x="700" y="254" text-anchor="middle" font-family="Franklin Gothic Medium, Arial, sans-serif" font-size="16" fill="#2F4F4F" font-weight="bold">LLVM AOT</text>
+  <text x="700" y="278" text-anchor="middle" font-family="Gill Sans, Calibri, sans-serif" font-size="13" fill="#555" font-style="italic">(native binary)</text>
+
+  <!-- ========== Legend bar ========== -->
+  <text x="450" y="368" text-anchor="middle" font-family="Gill Sans, Calibri, sans-serif" font-size="12" fill="#88CCCC">Source &#x2192; Tokens &#x2192; Tokens &#x2192; AST &#x2192; Typed AST &#x2192; Execution</text>
+</svg>
