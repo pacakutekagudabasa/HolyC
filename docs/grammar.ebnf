@@ -1,0 +1,271 @@
+(* HolyC Grammar — EBNF *)
+(* Based on TempleOS HolyC with portable extensions *)
+(* This is the normative grammar for our implementation *)
+
+(* ============================================================ *)
+(* LEXICAL GRAMMAR                                              *)
+(* ============================================================ *)
+
+letter          = 'a'..'z' | 'A'..'Z' | '_' ;
+digit           = '0'..'9' ;
+hex_digit       = digit | 'a'..'f' | 'A'..'F' ;
+bin_digit       = '0' | '1' ;
+oct_digit       = '0'..'7' ;
+
+identifier      = letter { letter | digit } ;
+
+(* Integer literals *)
+decimal_lit     = digit { digit } ;
+hex_lit         = '0' ('x' | 'X') hex_digit { hex_digit } ;
+binary_lit      = '0' ('b' | 'B') bin_digit { bin_digit } ;
+octal_lit       = '0' oct_digit { oct_digit } ;
+int_literal     = hex_lit | binary_lit | octal_lit | decimal_lit ;
+
+(* Float literals *)
+exponent        = ('e' | 'E') ['+' | '-'] digit { digit } ;
+float_literal   = digit { digit } '.' { digit } [exponent]
+                | '.' digit { digit } [exponent]
+                | digit { digit } exponent ;
+
+(* String escapes *)
+escape_seq      = '\\' ( '0' | '\'' | '"' | '\\' | 'n' | 'r' | 't' | 'd'
+                       | 'x' hex_digit hex_digit ) ;
+string_literal  = '"' { escape_seq | <any char except '"' and '\\'> } '"' ;
+
+(* Character literals — up to 8 bytes packed little-endian *)
+char_literal    = '\'' ( escape_seq | <any char except '\'' and '\\'> )
+                       { escape_seq | <any char except '\'' and '\\'> } '\'' ;
+
+(* Comments *)
+line_comment    = '//' { <any char except newline> } newline ;
+block_comment   = '/*' { <any char> } '*/' ;
+
+(* ============================================================ *)
+(* TYPES                                                        *)
+(* ============================================================ *)
+
+primitive_type  = 'U0' | 'I0' | 'U8' | 'I8' | 'U16' | 'I16'
+                | 'U32' | 'I32' | 'U64' | 'I64' | 'F32' | 'F64' | 'Bool' ;
+
+intrinsic_union = 'U8i' | 'I8i' | 'U16i' | 'I16i'
+                | 'U32i' | 'I32i' | 'U64i' | 'I64i' | 'F64i' ;
+
+type_spec       = primitive_type
+                | intrinsic_union
+                | 'class' identifier
+                | 'union' identifier
+                | identifier                    (* user-defined type *)
+                | 'auto' ;
+
+pointer_type    = type_spec { '*' } ;
+
+array_suffix    = '[' [expression] ']' ;
+
+func_ptr_type   = pointer_type '(' '*' [identifier] ')' '(' [param_list] ')' ;
+
+type            = pointer_type { array_suffix }
+                | func_ptr_type ;
+
+(* ============================================================ *)
+(* EXPRESSIONS                                                  *)
+(* ============================================================ *)
+
+(* Operator precedence — LOWEST to HIGHEST                      *)
+(* HolyC precedence differs from C! See roadmap table.          *)
+(*                                                              *)
+(* Level      Operators              Assoc    Note              *)
+(* -------    --------------------   -----    ----              *)
+(* Assign     = += -= *= /= %= &=   right                      *)
+(*             |= ^= <<= >>= ++=                               *)
+(*             --=                                              *)
+(* LogOr      ||                     left                       *)
+(* LogXor     ^^                     left     HolyC-specific    *)
+(* LogAnd     &&                     left                       *)
+(* Shift      << >>                  left     LOWER than cmp!   *)
+(* Compare    < > <= >= == !=        left     ALL SAME LEVEL    *)
+(* Add        + -                    left                       *)
+(* BitOr      |                      left     HIGHER than +/-   *)
+(* BitXor     ^                      left     HIGHER than +/-   *)
+(* BitAnd     &                      left     HIGHER than +/-   *)
+(* Mul        * / %                  left                       *)
+(* Power      `                      right    HolyC-specific    *)
+(* Prefix     ++ -- & * ! ~ -        right                      *)
+(* Postfix    ++ -- [] . -> () cast  left                       *)
+
+expression      = assignment_expr ;
+
+assignment_expr = logical_or_expr [ assign_op assignment_expr ] ;
+assign_op       = '=' | '+=' | '-=' | '*=' | '/=' | '%='
+                | '&=' | '|=' | '^=' | '<<=' | '>>='
+                | '++=' | '--=' ;
+
+logical_or_expr = logical_xor_expr { '||' logical_xor_expr } ;
+logical_xor_expr= logical_and_expr { '^^' logical_and_expr } ;
+logical_and_expr= shift_expr { '&&' shift_expr } ;
+shift_expr      = compare_expr { ('<<' | '>>') compare_expr } ;
+
+(* Chained comparisons: a < b < c  =>  (a < b) && (b < c) *)
+compare_expr    = add_expr { compare_op add_expr } ;
+compare_op      = '<' | '>' | '<=' | '>=' | '==' | '!=' ;
+
+add_expr        = bitor_expr { ('+' | '-') bitor_expr } ;
+bitor_expr      = bitxor_expr { '|' bitxor_expr } ;
+bitxor_expr     = bitand_expr { '^' bitand_expr } ;
+bitand_expr     = mul_expr { '&' mul_expr } ;
+mul_expr        = power_expr { ('*' | '/' | '%') power_expr } ;
+power_expr      = unary_expr [ '`' power_expr ] ;   (* right-associative *)
+
+unary_expr      = ('++' | '--' | '&' | '*' | '!' | '~' | '-') unary_expr
+                | postfix_expr ;
+
+postfix_expr    = primary_expr { postfix_op } ;
+postfix_op      = '++'
+                | '--'
+                | '[' expression ']'
+                | '.' identifier
+                | '->' identifier
+                | '(' [arg_list] ')'
+                | '(' type ')'              (* postfix cast: expr(Type) *)
+                ;
+
+primary_expr    = int_literal
+                | float_literal
+                | string_literal
+                | char_literal
+                | 'true' | 'false'
+                | identifier
+                | '(' expression ')'
+                | 'sizeof' '(' type_or_expr ')'
+                | 'offset' '(' identifier '.' identifier ')'
+                | 'lastclass'
+                | 'throw' '(' expression ')'
+                ;
+
+type_or_expr    = type | expression ;
+arg_list        = expression { ',' expression } ;
+
+(* ============================================================ *)
+(* STATEMENTS                                                   *)
+(* ============================================================ *)
+
+statement       = compound_stmt
+                | decl_stmt
+                | if_stmt
+                | for_stmt
+                | while_stmt
+                | do_while_stmt
+                | switch_stmt
+                | break_stmt
+                | continue_stmt
+                | return_stmt
+                | goto_stmt
+                | label_stmt
+                | try_catch_stmt
+                | asm_stmt
+                | exe_stmt
+                | string_output_stmt
+                | expr_stmt ;
+
+compound_stmt   = '{' { statement } '}' ;
+
+expr_stmt       = expression ';' ;
+
+(* String output: "fmt %d\n", arg1, arg2; *)
+string_output_stmt = string_literal [',' arg_list] ';' ;
+
+if_stmt         = 'if' '(' expression ')' statement ['else' statement] ;
+for_stmt        = 'for' '(' [for_init] ';' [expression] ';' [expression] ')'
+                  statement ;
+for_init        = var_decl_no_semi | expression ;
+while_stmt      = 'while' '(' expression ')' statement ;
+do_while_stmt   = 'do' statement 'while' '(' expression ')' ';' ;
+
+switch_stmt     = 'switch' '(' expression ')' '{' { case_clause } '}' ;
+case_clause     = ('case' expression | 'default') ':' { statement } ;
+
+break_stmt      = 'break' ';' ;
+continue_stmt   = 'continue' ';' ;
+return_stmt     = 'return' [expression] ';' ;
+goto_stmt       = 'goto' identifier ';' ;
+label_stmt      = identifier ':' statement          (* C-style label *)
+                | '_' identifier '::' statement ;   (* asm-style label *)
+
+try_catch_stmt  = 'try' compound_stmt 'catch' compound_stmt ;
+asm_stmt        = 'asm' '{' <raw asm text until matching '}'> '}' ;
+exe_stmt        = 'exe' compound_stmt ;
+
+(* ============================================================ *)
+(* DECLARATIONS                                                 *)
+(* ============================================================ *)
+
+declaration     = var_decl
+                | func_decl
+                | class_decl
+                | union_decl
+                | typedef_decl
+                | extern_decl ;
+
+decl_stmt       = declaration ;
+
+(* Variable declaration *)
+storage_class   = 'static' | 'reg' | 'noreg' ;
+qualifier       = 'no_warn' ;
+var_decl        = [storage_class] [qualifier] type identifier
+                  ['=' expression]
+                  { ',' identifier ['=' expression] } ';' ;
+var_decl_no_semi= [storage_class] [qualifier] type identifier ['=' expression] ;
+
+(* Function declaration *)
+func_modifier   = 'public' | 'static' | 'interrupt' | 'haserrcode'
+                | 'argpop' | 'noargpop' ;
+func_decl       = { func_modifier } type identifier '(' [param_list] ')'
+                  ( compound_stmt | ';' ) ;
+param_list      = param_decl { ',' param_decl } [',' '...'] ;
+param_decl      = type identifier ['=' expression] ;
+
+(* Class declaration *)
+class_decl      = 'class' identifier [':' identifier] '{'
+                  { field_decl | func_decl }
+                  '}' ';' ;
+field_decl      = type identifier [':' int_literal] ';' ;   (* bit-width optional *)
+
+(* Union declaration *)
+union_decl      = 'union' identifier '{'
+                  { field_decl }
+                  '}' ';' ;
+
+(* Typedef *)
+typedef_decl    = 'typedef' type identifier ';' ;
+
+(* Extern / linkage *)
+extern_decl     = ('extern' string_literal | '_extern' | '_intern' | 'import' | '_import')
+                  declaration ;
+
+(* ============================================================ *)
+(* PREPROCESSOR                                                 *)
+(* ============================================================ *)
+
+pp_directive    = '#include' string_literal
+                | '#define' identifier [token_list]
+                | '#define' identifier '(' [id_list] ')' [token_list]
+                | '#undef' identifier
+                | '#ifdef' identifier
+                | '#ifndef' identifier
+                | '#if' pp_const_expr
+                | '#elif' pp_const_expr
+                | '#else'
+                | '#endif'
+                | '#ifaot'
+                | '#ifjit'
+                | '#assert' pp_const_expr
+                | '#exe' compound_stmt ;
+
+pp_const_expr   = (* constant integer expression with +, -, *, /, &&, ||, !, defined() *) ;
+id_list         = identifier { ',' identifier } ;
+token_list      = (* arbitrary token sequence until end of line *) ;
+
+(* ============================================================ *)
+(* TRANSLATION UNIT                                             *)
+(* ============================================================ *)
+
+translation_unit = { pp_directive | declaration | statement } EOF ;
