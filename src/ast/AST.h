@@ -404,7 +404,7 @@ struct AsmStmt : Stmt {
     std::string raw_text;
     std::vector<std::string> imports;
     std::vector<std::string> exports;
-zsh:1: command not found: q
+    std::vector<AsmConstraint> outputs; // "=r"(expr) — output constraint (लिखने वाले registers)
     std::vector<AsmConstraint> inputs;  // "r"(expr) — input constraint (पढ़ने वाले registers)
     std::vector<std::string>   clobbers; // "rax", "memory", "cc" — clobbered registers (बदल जाने वाले)
     AsmStmt() : Stmt(NodeKind::AsmStmt) {}
